@@ -60,7 +60,7 @@ function MapView({ selectedRoutes, showHeatmap }: MapViewProps) {
 
   // Get radius based on severity
   const getCrimeRadius = (severity: number) => {
-    return severity * 50; // Scale radius with severity
+    return severity * 3; // Scale radius with severity (much smaller for clarity)
   };
 
   // Create custom icons for start/end
@@ -112,8 +112,8 @@ function MapView({ selectedRoutes, showHeatmap }: MapViewProps) {
                 fillColor: getCrimeColor(crime.severity_score),
                 color: getCrimeColor(crime.severity_score),
                 weight: 1,
-                opacity: 0.4,
-                fillOpacity: 0.3,
+                opacity: 0.6,
+                fillOpacity: 0.4,
               }}
             >
               <Popup>
