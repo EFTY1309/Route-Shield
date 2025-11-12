@@ -4,6 +4,7 @@ import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import MapView from "./components/MapView";
 import Dashboard from "./components/Dashboard";
 import RouteComparison from "./components/RouteComparison";
+import RouteSearch from "./components/RouteSearch";
 
 function AppContent() {
   const { theme, toggleTheme } = useTheme();
@@ -16,6 +17,15 @@ function AppContent() {
       prev.includes(routeId)
         ? prev.filter((id) => id !== routeId)
         : [...prev, routeId]
+    );
+  };
+
+  const handleRouteSearch = (origin: string, destination: string) => {
+    console.log("Searching routes from:", origin, "to:", destination);
+    // TODO: When backend is ready, call Google Maps Direction API
+    // For now, just show a notification
+    alert(
+      `🔍 Searching safe routes from "${origin}" to "${destination}"...\n\n📍 This will integrate with Google Maps Direction API when backend is ready.\n✅ Routes will be analyzed based on crime heatmap data.\n🛡️ Safety scores will be calculated for each route option.`
     );
   };
 
@@ -145,12 +155,17 @@ function AppContent() {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden flex flex-col gap-4">
               {activeTab === "routes" ? (
-                <RouteComparison
-                  selectedRoutes={selectedRoutes}
-                  onRouteToggle={handleRouteToggle}
-                />
+                <>
+                  <RouteSearch onSearch={handleRouteSearch} />
+                  <div className="flex-1 overflow-hidden">
+                    <RouteComparison
+                      selectedRoutes={selectedRoutes}
+                      onRouteToggle={handleRouteToggle}
+                    />
+                  </div>
+                </>
               ) : (
                 <Dashboard />
               )}
