@@ -2,20 +2,17 @@ import { useState } from "react";
 
 interface RouteSearchProps {
   onSearch: (origin: string, destination: string) => void;
+  isSearching?: boolean;
 }
 
-function RouteSearch({ onSearch }: RouteSearchProps) {
+function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (origin.trim() && destination.trim()) {
-      setIsSearching(true);
+    if (origin.trim() && destination.trim() && !isSearching) {
       onSearch(origin, destination);
-      // Simulate API call delay
-      setTimeout(() => setIsSearching(false), 1000);
     }
   };
 
@@ -165,10 +162,39 @@ function RouteSearch({ onSearch }: RouteSearchProps) {
       <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
         <p className="text-xs text-blue-700 dark:text-blue-300">
           💡 <strong>How it works:</strong> Enter your origin and destination.
-          We'll analyze routes from Google Maps Direction API and calculate
-          safety scores based on crime data along each route.
+          We'll fetch multiple route options from Google Maps Direction API and
+          calculate safety scores based on crime heatmap data along each route.
         </p>
       </div>
+
+      {/* Loading State */}
+      {isSearching && (
+        <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
+            <svg
+              className="animate-spin h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <strong>Analyzing routes...</strong> Fetching alternatives and
+            calculating safety scores
+          </p>
+        </div>
+      )}
     </div>
   );
 }
