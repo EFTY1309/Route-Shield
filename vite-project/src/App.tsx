@@ -5,12 +5,20 @@ import MapView from "./components/MapView";
 import Dashboard from "./components/Dashboard";
 import RouteComparison from "./components/RouteComparison";
 import RouteSearch from "./components/RouteSearch";
+import type { RouteData } from "./types/route.types";
+import { fetchRouteAlternativesMock } from "./services/routeService";
+// For production, use: import { fetchRouteAlternatives } from "./services/routeService";
 
 function AppContent() {
   const { theme, toggleTheme } = useTheme();
-  const [selectedRoutes, setSelectedRoutes] = useState<number[]>([1, 2]);
+  const [selectedRoutes, setSelectedRoutes] = useState<number[]>([]);
   const [showHeatmap, setShowHeatmap] = useState(true);
   const [activeTab, setActiveTab] = useState<"dashboard" | "routes">("routes");
+  const [routes, setRoutes] = useState<RouteData[]>([]);
+  const [isLoadingRoutes, setIsLoadingRoutes] = useState(false);
+  const [routeError, setRouteError] = useState<string | null>(null);
+  const [searchedOrigin, setSearchedOrigin] = useState<string>("");
+  const [searchedDestination, setSearchedDestination] = useState<string>("");
 
   const handleRouteToggle = (routeId: number) => {
     setSelectedRoutes((prev) =>
@@ -20,13 +28,44 @@ function AppContent() {
     );
   };
 
-  const handleRouteSearch = (origin: string, destination: string) => {
+  const handleRouteSearch = async (origin: string, destination: string) => {
     console.log("Searching routes from:", origin, "to:", destination);
-    // TODO: When backend is ready, call Google Maps Direction API
-    // For now, just show a notification
-    alert(
-      `🔍 Searching safe routes from "${origin}" to "${destination}"...\n\n📍 This will integrate with Google Maps Direction API when backend is ready.\n✅ Routes will be analyzed based on crime heatmap data.\n🛡️ Safety scores will be calculated for each route option.`
-    );
+
+    setIsLoadingRoutes(true);
+    setRouteError(null);
+    setSearchedOrigin(origin);
+    setSearchedDestination(destination);
+
+    try {
+      // For development/testing, use mock data
+      // Replace with fetchRouteAlternatives(origin, destination, apiKey) in production
+      const fetchedRoutes = await fetchRouteAlternativesMock(
+        origin,
+        destination
+      );
+
+      // Production implementation (when you have Google Maps API key):
+      // const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      // const fetchedRoutes = await fetchRouteAlternatives(origin, destination, apiKey);
+
+      setRoutes(fetchedRoutes);
+
+      // Auto-select all routes initially
+      setSelectedRoutes(fetchedRoutes.map((route) => route.id));
+
+      console.log(`Found ${fetchedRoutes.length} route(s) with safety scores`);
+    } catch (error) {
+      console.error("Error fetching routes:", error);
+      setRouteError(
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch routes. Please try again."
+      );
+      setRoutes([]);
+      setSelectedRoutes([]);
+    } finally {
+      setIsLoadingRoutes(false);
+    }
   };
 
   return (
@@ -125,6 +164,9 @@ function AppContent() {
             <MapView
               selectedRoutes={selectedRoutes}
               showHeatmap={showHeatmap}
+              routes={routes}
+              origin={searchedOrigin}
+              destination={searchedDestination}
             />
           </div>
 
@@ -158,11 +200,17 @@ function AppContent() {
             <div className="flex-1 overflow-hidden flex flex-col gap-4">
               {activeTab === "routes" ? (
                 <>
-                  <RouteSearch onSearch={handleRouteSearch} />
+                  <RouteSearch
+                    onSearch={handleRouteSearch}
+                    isSearching={isLoadingRoutes}
+                  />
                   <div className="flex-1 overflow-hidden">
                     <RouteComparison
                       selectedRoutes={selectedRoutes}
                       onRouteToggle={handleRouteToggle}
+                      routes={routes}
+                      isLoading={isLoadingRoutes}
+                      error={routeError}
                     />
                   </div>
                 </>
