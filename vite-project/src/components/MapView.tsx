@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -6,12 +6,12 @@ import {
   Marker,
   Popup,
   CircleMarker,
+  useMap,
 } from "react-leaflet";
-import { Icon } from "leaflet";
+import { Icon, LatLngBounds } from "leaflet";
 import type { LatLngExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { dummyRoutes, startLocation, endLocation } from "../data/dummyRoutes";
-import type { RouteData } from "../data/dummyRoutes";
+import type { RouteData } from "../types/route.types";
 import { dummyCrimes } from "../data/dummyCrimes";
 import type { CrimeData } from "../data/dummyCrimes";
 import { useTheme } from "../context/ThemeContext";
@@ -32,9 +32,40 @@ Icon.Default.mergeOptions({
 interface MapViewProps {
   selectedRoutes: number[];
   showHeatmap: boolean;
+  routes: RouteData[];
+  origin?: string;
+  destination?: string;
 }
 
-function MapView({ selectedRoutes, showHeatmap }: MapViewProps) {
+// Component to auto-fit map bounds when routes change
+function MapBoundsFitter({ routes }: { routes: RouteData[] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (routes.length > 0) {
+      const allCoords = routes.flatMap((route) =>
+        route.coordinates.map(
+          (coord) => [coord.lat, coord.lng] as [number, number]
+        )
+      );
+
+      if (allCoords.length > 0) {
+        const bounds = new LatLngBounds(allCoords);
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+    }
+  }, [routes, map]);
+
+  return null;
+}
+
+function MapView({
+  selectedRoutes,
+  showHeatmap,
+  routes,
+  origin,
+  destination,
+}: MapViewProps) {
   const { theme } = useTheme();
   const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
 
@@ -132,8 +163,11 @@ function MapView({ selectedRoutes, showHeatmap }: MapViewProps) {
             </CircleMarker>
           ))}
 
+        {/* Auto-fit bounds when routes change */}
+        <MapBoundsFitter routes={routes} />
+
         {/* Draw Routes */}
-        {dummyRoutes
+        {routes
           .filter((route: RouteData) => selectedRoutes.includes(route.id))
           .map((route: RouteData) => (
             <Polyline
@@ -170,28 +204,41 @@ function MapView({ selectedRoutes, showHeatmap }: MapViewProps) {
             </Polyline>
           ))}
 
-        {/* Start Marker */}
-        <Marker
-          position={[startLocation.lat, startLocation.lng]}
-          icon={startIcon}
-        >
-          <Popup>
-            <div className="text-sm">
-              <h3 className="font-bold text-green-700">Start Point</h3>
-              <p className="text-gray-700">{startLocation.name}</p>
-            </div>
-          </Popup>
-        </Marker>
+        {/* Start Marker - show only if routes exist */}
+        {routes.length > 0 && routes[0].coordinates.length > 0 && (
+          <Marker
+            position={[
+              routes[0].coordinates[0].lat,
+              routes[0].coordinates[0].lng,
+            ]}
+            icon={startIcon}
+          >
+            <Popup>
+              <div className="text-sm">
+                <h3 className="font-bold text-green-700">Start Point</h3>
+                <p className="text-gray-700">{origin || "Origin"}</p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
 
-        {/* End Marker */}
-        <Marker position={[endLocation.lat, endLocation.lng]} icon={endIcon}>
-          <Popup>
-            <div className="text-sm">
-              <h3 className="font-bold text-red-700">Destination</h3>
-              <p className="text-gray-700">{endLocation.name}</p>
-            </div>
-          </Popup>
-        </Marker>
+        {/* End Marker - show only if routes exist */}
+        {routes.length > 0 && routes[0].coordinates.length > 0 && (
+          <Marker
+            position={[
+              routes[0].coordinates[routes[0].coordinates.length - 1].lat,
+              routes[0].coordinates[routes[0].coordinates.length - 1].lng,
+            ]}
+            icon={endIcon}
+          >
+            <Popup>
+              <div className="text-sm">
+                <h3 className="font-bold text-red-700">Destination</h3>
+                <p className="text-gray-700">{destination || "Destination"}</p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
       </MapContainer>
 
       {/* Legend */}
