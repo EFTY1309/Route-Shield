@@ -36,21 +36,8 @@ function AppContent() {
     setSearchedDestination(destination);
 
     try {
-      // Get API key from environment
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
-      if (!apiKey) {
-        throw new Error(
-          "Google Maps API key not found. Please add VITE_GOOGLE_MAPS_API_KEY to your .env file"
-        );
-      }
-
-      // Fetch routes from Google Maps API
-      const fetchedRoutes = await fetchRouteAlternatives(
-        origin,
-        destination,
-        apiKey
-      );
+      // Fetch routes from backend API (no API key needed - handled by backend)
+      const fetchedRoutes = await fetchRouteAlternatives(origin, destination);
 
       setRoutes(fetchedRoutes);
 

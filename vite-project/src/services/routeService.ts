@@ -57,20 +57,20 @@ export function decodePolyline(encoded: string): Coordinate[] {
 }
 
 /**
- * Fetch route alternatives from Google Maps Direction API
+ * Fetch route alternatives from Google Maps Direction API via backend proxy
  * @param origin - Starting location (address or "lat,lng")
  * @param destination - Ending location (address or "lat,lng")
- * @param apiKey - Google Maps API key
  * @returns Array of routes with safety scores
  */
 export async function fetchRouteAlternatives(
   origin: string,
-  destination: string,
-  apiKey: string
+  destination: string
 ): Promise<RouteData[]> {
-  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+  // Use backend proxy to avoid CORS issues
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+  const url = `${backendUrl}/api/directions?origin=${encodeURIComponent(
     origin
-  )}&destination=${encodeURIComponent(destination)}&alternatives=true&key=${apiKey}`;
+  )}&destination=${encodeURIComponent(destination)}&alternatives=true`;
 
   try {
     const response = await fetch(url);
