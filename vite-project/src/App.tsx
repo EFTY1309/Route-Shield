@@ -6,8 +6,7 @@ import Dashboard from "./components/Dashboard";
 import RouteComparison from "./components/RouteComparison";
 import RouteSearch from "./components/RouteSearch";
 import type { RouteData } from "./types/route.types";
-import { fetchRouteAlternativesMock } from "./services/routeService";
-// For production, use: import { fetchRouteAlternatives } from "./services/routeService";
+import { fetchRouteAlternatives } from "./services/routeService";
 
 function AppContent() {
   const { theme, toggleTheme } = useTheme();
@@ -37,16 +36,21 @@ function AppContent() {
     setSearchedDestination(destination);
 
     try {
-      // For development/testing, use mock data
-      // Replace with fetchRouteAlternatives(origin, destination, apiKey) in production
-      const fetchedRoutes = await fetchRouteAlternativesMock(
-        origin,
-        destination
-      );
+      // Get API key from environment
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-      // Production implementation (when you have Google Maps API key):
-      // const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-      // const fetchedRoutes = await fetchRouteAlternatives(origin, destination, apiKey);
+      if (!apiKey) {
+        throw new Error(
+          "Google Maps API key not found. Please add VITE_GOOGLE_MAPS_API_KEY to your .env file"
+        );
+      }
+
+      // Fetch routes from Google Maps API
+      const fetchedRoutes = await fetchRouteAlternatives(
+        origin,
+        destination,
+        apiKey
+      );
 
       setRoutes(fetchedRoutes);
 
