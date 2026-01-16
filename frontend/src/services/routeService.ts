@@ -19,6 +19,34 @@ interface OSRMBackendResponse {
   route_index: number;
 }
 
+// Location Suggestion Interface
+export interface LocationSuggestion {
+  display_name: string;
+  lat: string;
+  lon: string;
+  place_id: number;
+  type: string;
+  addresstype: string;
+}
+
+// Nominatim API Response Interface
+interface NominatimResult {
+  place_id: number;
+  licence: string;
+  osm_type: string;
+  osm_id: number;
+  lat: string;
+  lon: string;
+  class: string;
+  type: string;
+  place_rank: number;
+  importance: number;
+  addresstype: string;
+  name?: string;
+  display_name: string;
+  boundingbox: string[];
+}
+
 /**
  * Decode Google Maps polyline to array of coordinates
  * Implementation of the Encoded Polyline Algorithm
@@ -68,13 +96,15 @@ export function decodePolyline(encoded: string): Coordinate[] {
 
 /**
  * Geocode an address to coordinates using Nominatim (OpenStreetMap)
+ * Prioritizes results from Bangladesh/Dhaka
  * @param address - Address string to geocode
  * @returns Coordinate object with lat/lng
  */
 async function geocodeAddress(address: string): Promise<Coordinate> {
+  // Add countrycodes parameter to prioritize Bangladesh
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
     address
-  )}`;
+  )}&countrycodes=bd&limit=5`;
 
   try {
     const response = await fetch(url, {
@@ -82,19 +112,65 @@ async function geocodeAddress(address: string): Promise<Coordinate> {
         "User-Agent": "SafeRouteApp/1.0",
       },
     });
-    const data = await response.json();
+    const data: NominatimResult[] = await response.json();
 
     if (data.length === 0) {
       throw new Error(`Could not geocode address: ${address}`);
     }
 
+    // Prioritize results that mention Dhaka in display_name
+    const dhakaResult = data.find((result: NominatimResult) =>
+      result.display_name.toLowerCase().includes("dhaka")
+    );
+
+    const bestResult = dhakaResult || data[0];
+
     return {
-      lat: parseFloat(data[0].lat),
-      lng: parseFloat(data[0].lon),
+      lat: parseFloat(bestResult.lat),
+      lng: parseFloat(bestResult.lon),
     };
   } catch (error) {
     console.error("Geocoding error:", error);
     throw new Error(`Failed to geocode address: ${address}`);
+  }
+}
+
+/**
+ * Fetch location suggestions for autocomplete
+ * @param query - Search query string
+ * @returns Array of location suggestions
+ */
+export async function fetchLocationSuggestions(
+  query: string
+): Promise<LocationSuggestion[]> {
+  if (!query || query.trim().length < 2) {
+    return [];
+  }
+
+  // Prioritize Bangladesh results and limit to 10
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+    query
+  )}&countrycodes=bd&limit=10&addressdetails=1`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "SafeRouteApp/1.0",
+      },
+    });
+    const data: NominatimResult[] = await response.json();
+
+    return data.map((item: NominatimResult) => ({
+      display_name: item.display_name,
+      lat: item.lat,
+      lon: item.lon,
+      place_id: item.place_id,
+      type: item.type,
+      addresstype: item.addresstype,
+    }));
+  } catch (error) {
+    console.error("Error fetching location suggestions:", error);
+    return [];
   }
 }
 
