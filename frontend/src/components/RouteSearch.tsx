@@ -12,6 +12,14 @@ interface RouteSearchProps {
 function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [originCoords, setOriginCoords] = useState<{
+    lat: string;
+    lng: string;
+  } | null>(null);
+  const [destCoords, setDestCoords] = useState<{
+    lat: string;
+    lng: string;
+  } | null>(null);
   const [originSuggestions, setOriginSuggestions] = useState<
     LocationSuggestion[]
   >([]);
@@ -87,17 +95,28 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
     if (origin.trim() && destination.trim() && !isSearching) {
       setShowOriginSuggestions(false);
       setShowDestSuggestions(false);
-      onSearch(origin, destination);
+
+      // If coordinates are available from selection, use "lat,lng" format
+      const originValue = originCoords
+        ? `${originCoords.lat},${originCoords.lng}`
+        : origin;
+      const destValue = destCoords
+        ? `${destCoords.lat},${destCoords.lng}`
+        : destination;
+
+      onSearch(originValue, destValue);
     }
   };
 
   const handleOriginSelect = (suggestion: LocationSuggestion) => {
     setOrigin(suggestion.display_name);
+    setOriginCoords({ lat: suggestion.lat, lng: suggestion.lon });
     setShowOriginSuggestions(false);
   };
 
   const handleDestSelect = (suggestion: LocationSuggestion) => {
     setDestination(suggestion.display_name);
+    setDestCoords({ lat: suggestion.lat, lng: suggestion.lon });
     setShowDestSuggestions(false);
   };
 
@@ -146,6 +165,7 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
             value={origin}
             onChange={(e) => {
               setOrigin(e.target.value);
+              setOriginCoords(null); // Clear coords when manually typing
               setShowOriginSuggestions(true);
             }}
             onFocus={() => setShowOriginSuggestions(true)}
@@ -185,6 +205,7 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
             value={destination}
             onChange={(e) => {
               setDestination(e.target.value);
+              setDestCoords(null); // Clear coords when manually typing
               setShowDestSuggestions(true);
             }}
             onFocus={() => setShowDestSuggestions(true)}
