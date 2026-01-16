@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  fetchLocationSuggestions,
-  type LocationSuggestion,
-} from "../services/routeService";
+import { useSuggestions } from "../hooks/useSuggestions";
+import { SuggestionDropdown } from "./SuggestionDropdown";
+import { QUICK_LOCATIONS } from "../constants/locations";
+import type { LocationSuggestion } from "../services/routeService";
 
 interface RouteSearchProps {
   onSearch: (origin: string, destination: string) => void;
@@ -20,14 +20,9 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
     lat: string;
     lng: string;
   } | null>(null);
-  const [originSuggestions, setOriginSuggestions] = useState<
-    LocationSuggestion[]
-  >([]);
-  const [destSuggestions, setDestSuggestions] = useState<LocationSuggestion[]>(
-    []
-  );
-  const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
-  const [showDestSuggestions, setShowDestSuggestions] = useState(false);
+
+  const originInput = useSuggestions();
+  const destInput = useSuggestions();
 
   const originRef = useRef<HTMLDivElement>(null);
   const destRef = useRef<HTMLDivElement>(null);
@@ -39,64 +34,23 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
         originRef.current &&
         !originRef.current.contains(event.target as Node)
       ) {
-        setShowOriginSuggestions(false);
+        originInput.setIsOpen(false);
       }
       if (destRef.current && !destRef.current.contains(event.target as Node)) {
-        setShowDestSuggestions(false);
+        destInput.setIsOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Fetch suggestions for origin
-  useEffect(() => {
-    const fetchOriginSuggestions = async () => {
-      if (origin.trim().length < 2) {
-        setOriginSuggestions([]);
-        return;
-      }
-
-      try {
-        const suggestions = await fetchLocationSuggestions(origin);
-        setOriginSuggestions(suggestions);
-      } catch (error) {
-        console.error("Error fetching origin suggestions:", error);
-      }
-    };
-
-    const debounceTimer = setTimeout(fetchOriginSuggestions, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [origin]);
-
-  // Fetch suggestions for destination
-  useEffect(() => {
-    const fetchDestSuggestions = async () => {
-      if (destination.trim().length < 2) {
-        setDestSuggestions([]);
-        return;
-      }
-
-      try {
-        const suggestions = await fetchLocationSuggestions(destination);
-        setDestSuggestions(suggestions);
-      } catch (error) {
-        console.error("Error fetching destination suggestions:", error);
-      }
-    };
-
-    const debounceTimer = setTimeout(fetchDestSuggestions, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [destination]);
+  }, [originInput, destInput]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (origin.trim() && destination.trim() && !isSearching) {
-      setShowOriginSuggestions(false);
-      setShowDestSuggestions(false);
+      originInput.setIsOpen(false);
+      destInput.setIsOpen(false);
 
-      // If coordinates are available from selection, use "lat,lng" format
       const originValue = originCoords
         ? `${originCoords.lat},${originCoords.lng}`
         : origin;
@@ -111,23 +65,14 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
   const handleOriginSelect = (suggestion: LocationSuggestion) => {
     setOrigin(suggestion.display_name);
     setOriginCoords({ lat: suggestion.lat, lng: suggestion.lon });
-    setShowOriginSuggestions(false);
+    originInput.setIsOpen(false);
   };
 
   const handleDestSelect = (suggestion: LocationSuggestion) => {
     setDestination(suggestion.display_name);
     setDestCoords({ lat: suggestion.lat, lng: suggestion.lon });
-    setShowDestSuggestions(false);
+    destInput.setIsOpen(false);
   };
-
-  const quickLocations = [
-    { name: "Mirpur 10", value: "Mirpur 10, Dhaka" },
-    { name: "Gulshan 2", value: "Gulshan 2, Dhaka" },
-    { name: "Dhanmondi 27", value: "Dhanmondi 27, Dhaka" },
-    { name: "Motijheel", value: "Motijheel, Dhaka" },
-    { name: "Uttara", value: "Uttara, Dhaka" },
-    { name: "Banani", value: "Banani, Dhaka" },
-  ];
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-4">
@@ -165,34 +110,18 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
             value={origin}
             onChange={(e) => {
               setOrigin(e.target.value);
-              setOriginCoords(null); // Clear coords when manually typing
-              setShowOriginSuggestions(true);
+              setOriginCoords(null);
+              originInput.handleInput(e.target.value);
             }}
-            onFocus={() => setShowOriginSuggestions(true)}
+            onFocus={() => originInput.setIsOpen(true)}
             placeholder="Enter starting location..."
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
           />
-
-          {/* Origin Suggestions Dropdown */}
-          {showOriginSuggestions && originSuggestions.length > 0 && (
-            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-              {originSuggestions.map((suggestion) => (
-                <button
-                  key={suggestion.place_id}
-                  type="button"
-                  onClick={() => handleOriginSelect(suggestion)}
-                  className="w-full text-left px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900 border-b border-gray-200 dark:border-gray-700 last:border-b-0 transition-colors"
-                >
-                  <div className="text-sm text-gray-900 dark:text-white font-medium">
-                    {suggestion.display_name.split(",")[0]}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {suggestion.display_name}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+          <SuggestionDropdown
+            suggestions={originInput.suggestions}
+            isOpen={originInput.isOpen}
+            onSelect={handleOriginSelect}
+          />
         </div>
 
         {/* Destination Input */}
@@ -205,34 +134,18 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
             value={destination}
             onChange={(e) => {
               setDestination(e.target.value);
-              setDestCoords(null); // Clear coords when manually typing
-              setShowDestSuggestions(true);
+              setDestCoords(null);
+              destInput.handleInput(e.target.value);
             }}
-            onFocus={() => setShowDestSuggestions(true)}
+            onFocus={() => destInput.setIsOpen(true)}
             placeholder="Enter destination..."
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
           />
-
-          {/* Destination Suggestions Dropdown */}
-          {showDestSuggestions && destSuggestions.length > 0 && (
-            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-              {destSuggestions.map((suggestion) => (
-                <button
-                  key={suggestion.place_id}
-                  type="button"
-                  onClick={() => handleDestSelect(suggestion)}
-                  className="w-full text-left px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900 border-b border-gray-200 dark:border-gray-700 last:border-b-0 transition-colors"
-                >
-                  <div className="text-sm text-gray-900 dark:text-white font-medium">
-                    {suggestion.display_name.split(",")[0]}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {suggestion.display_name}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+          <SuggestionDropdown
+            suggestions={destInput.suggestions}
+            isOpen={destInput.isOpen}
+            onSelect={handleDestSelect}
+          />
         </div>
 
         {/* Quick Location Buttons */}
@@ -241,15 +154,17 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
             Quick Locations
           </label>
           <div className="grid grid-cols-3 gap-2">
-            {quickLocations.map((location) => (
+            {QUICK_LOCATIONS.map((location) => (
               <button
                 key={location.name}
                 type="button"
                 onClick={() => {
                   if (!origin) {
                     setOrigin(location.value);
+                    originInput.handleInput(location.value);
                   } else if (!destination) {
                     setDestination(location.value);
+                    destInput.handleInput(location.value);
                   }
                 }}
                 className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900 text-gray-700 dark:text-gray-300 rounded transition-colors"
