@@ -46,11 +46,6 @@ function RouteComparison({
         Route Comparison
       </h2>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-        Compare different routes based on safety scores, duration, and risk
-        levels. Click on a route card to toggle its visibility on the map.
-      </p>
-
       {/* Loading State */}
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-12">
@@ -241,18 +236,6 @@ function RouteComparison({
               </div>
             );
           })}
-
-          {/* Comparison Summary */}
-          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-750 rounded-lg border border-blue-200 dark:border-gray-600">
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              💡 Quick Tip
-            </h4>
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              Routes are sorted by safety score. Select multiple routes to
-              compare them side-by-side on the map. Hover over routes for
-              detailed information.
-            </p>
-          </div>
         </div>
       )}
     </div>
