@@ -9,6 +9,16 @@ import {
   generateRouteDescription,
 } from "../utils/safetyScoring";
 
+// Backend API Response Interface
+interface OSRMBackendResponse {
+  distance: number;
+  duration: number;
+  geometry: Array<{ lat: number; lng: number }>;
+  distance_text: string;
+  duration_text: string;
+  route_index: number;
+}
+
 /**
  * Decode Google Maps polyline to array of coordinates
  * Implementation of the Encoded Polyline Algorithm
@@ -57,12 +67,144 @@ export function decodePolyline(encoded: string): Coordinate[] {
 }
 
 /**
- * Fetch route alternatives from Google Maps Direction API via backend proxy
+ * Geocode an address to coordinates using Nominatim (OpenStreetMap)
+ * @param address - Address string to geocode
+ * @returns Coordinate object with lat/lng
+ */
+async function geocodeAddress(address: string): Promise<Coordinate> {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+    address
+  )}`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "SafeRouteApp/1.0",
+      },
+    });
+    const data = await response.json();
+
+    if (data.length === 0) {
+      throw new Error(`Could not geocode address: ${address}`);
+    }
+
+    return {
+      lat: parseFloat(data[0].lat),
+      lng: parseFloat(data[0].lon),
+    };
+  } catch (error) {
+    console.error("Geocoding error:", error);
+    throw new Error(`Failed to geocode address: ${address}`);
+  }
+}
+
+/**
+ * Fetch route alternatives from OSRM backend API
  * @param origin - Starting location (address or "lat,lng")
  * @param destination - Ending location (address or "lat,lng")
  * @returns Array of routes with safety scores
  */
 export async function fetchRouteAlternatives(
+  origin: string,
+  destination: string
+): Promise<RouteData[]> {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+
+  try {
+    // Parse or geocode origin coordinates
+    let originCoord: Coordinate;
+    if (origin.includes(",")) {
+      const [lat, lng] = origin.split(",").map((s) => parseFloat(s.trim()));
+      originCoord = { lat, lng };
+    } else {
+      originCoord = await geocodeAddress(origin);
+    }
+
+    // Parse or geocode destination coordinates
+    let destCoord: Coordinate;
+    if (destination.includes(",")) {
+      const [lat, lng] = destination.split(",").map((s) => parseFloat(s.trim()));
+      destCoord = { lat, lng };
+    } else {
+      destCoord = await geocodeAddress(destination);
+    }
+
+    // Call backend API with coordinates
+    const response = await fetch(`${backendUrl}/api/routes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        source_lat: originCoord.lat,
+        source_lng: originCoord.lng,
+        dest_lat: destCoord.lat,
+        dest_lng: destCoord.lng,
+        alternatives: 3,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.detail || `Backend API error: ${response.status}`
+      );
+    }
+
+    const routes: OSRMBackendResponse[] = await response.json();
+
+    // Process each route and add safety scoring
+    const processedRoutes: RouteData[] = routes.map((route, index) => {
+      const coordinates = route.geometry;
+
+      // Calculate safety score based on crime data
+      const safetyAnalysis = calculateRouteSafetyScore(
+        coordinates,
+        dummyCrimes
+      );
+
+      // Generate description
+      const description = generateRouteDescription(safetyAnalysis);
+
+      return {
+        id: index + 1,
+        name: `Route ${index + 1}`,
+        coordinates,
+        distance: route.distance_text,
+        duration: route.duration_text,
+        distanceValue: route.distance,
+        durationValue: route.duration,
+        safety_score: safetyAnalysis.safety_score,
+        risk_level: safetyAnalysis.risk_level,
+        crimes_on_route: safetyAnalysis.crimes_near_route,
+        description,
+      };
+    });
+
+    // Sort routes by safety score (highest first) as primary criteria
+    // If safety scores are close (within 10 points), prefer shorter duration
+    processedRoutes.sort((a, b) => {
+      const scoreDiff = b.safety_score - a.safety_score;
+      if (Math.abs(scoreDiff) > 10) {
+        return scoreDiff; // Prioritize safety if significant difference
+      }
+      return a.durationValue - b.durationValue; // Otherwise prefer faster route
+    });
+
+    return processedRoutes;
+  } catch (error) {
+    console.error("Error fetching routes from backend:", error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch route alternatives from Google Maps Direction API via backend proxy
+ * @param origin - Starting location (address or "lat,lng")
+ * @param destination - Ending location (address or "lat,lng")
+ * @returns Array of routes with safety scores
+ */
+export async function fetchRouteAlternativesFromGoogleMaps(
   origin: string,
   destination: string
 ): Promise<RouteData[]> {
