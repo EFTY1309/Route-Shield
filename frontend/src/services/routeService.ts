@@ -4,10 +4,23 @@ import type {
   Coordinate,
 } from "../types/route.types";
 import { dummyCrimes } from "../data/dummyCrimes";
+import type { CrimeData } from "../data/dummyCrimes";
 import {
   calculateRouteSafetyScore,
   generateRouteDescription,
 } from "../utils/safetyScoring";
+
+// Crime Statistics Interface
+interface CrimeStatistics {
+  total_crimes: number;
+  day_crimes: number;
+  night_crimes: number;
+  crime_type_distribution: Record<string, number>;
+  average_severity: number;
+  high_severity_areas: CrimeData[];
+  data_period: string;
+  data_sources: string[];
+}
 
 // Backend API Response Interface
 interface OSRMBackendResponse {
@@ -187,6 +200,11 @@ export async function fetchRouteAlternatives(
   const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
   try {
+    // Fetch real crime data from API first
+    console.log("Fetching real crime data from API...");
+    const crimeData = await fetchCrimeData();
+    console.log(`Loaded ${crimeData.length} crime records for safety calculation`);
+
     // Parse or geocode origin coordinates
     let originCoord: Coordinate;
     if (origin.includes(",")) {
@@ -229,14 +247,14 @@ export async function fetchRouteAlternatives(
 
     const routes: OSRMBackendResponse[] = await response.json();
 
-    // Process each route and add safety scoring
+    // Process each route and add safety scoring using REAL crime data
     const processedRoutes: RouteData[] = routes.map((route, index) => {
       const coordinates = route.geometry;
 
-      // Calculate safety score based on crime data
+      // Calculate safety score based on REAL crime data from API
       const safetyAnalysis = calculateRouteSafetyScore(
         coordinates,
-        dummyCrimes
+        crimeData
       );
 
       // Generate description
@@ -291,6 +309,11 @@ export async function fetchRouteAlternativesFromGoogleMaps(
   )}&destination=${encodeURIComponent(destination)}&alternatives=true`;
 
   try {
+    // Fetch real crime data from API first
+    console.log("Fetching real crime data from API...");
+    const crimeData = await fetchCrimeData();
+    console.log(`Loaded ${crimeData.length} crime records for safety calculation`);
+
     const response = await fetch(url);
     const data: GoogleMapsDirectionResponse = await response.json();
 
@@ -305,8 +328,8 @@ export async function fetchRouteAlternativesFromGoogleMaps(
       // Decode the overview polyline to get route coordinates
       const coordinates = decodePolyline(route.overview_polyline.points);
 
-      // Calculate safety score based on crime data
-      const safetyAnalysis = calculateRouteSafetyScore(coordinates, dummyCrimes);
+      // Calculate safety score based on REAL crime data from API
+      const safetyAnalysis = calculateRouteSafetyScore(coordinates, crimeData);
 
       // Generate description
       const description = generateRouteDescription(safetyAnalysis);
@@ -359,6 +382,11 @@ export async function fetchRouteAlternativesWithProxy(
   )}&destination=${encodeURIComponent(destination)}&alternatives=true&key=${apiKey}`;
 
   try {
+    // Fetch real crime data from API first
+    console.log("Fetching real crime data from API...");
+    const crimeData = await fetchCrimeData();
+    console.log(`Loaded ${crimeData.length} crime records for safety calculation`);
+
     const response = await fetch(url);
     const data: GoogleMapsDirectionResponse = await response.json();
 
@@ -369,7 +397,7 @@ export async function fetchRouteAlternativesWithProxy(
     const processedRoutes: RouteData[] = data.routes.map((route, index) => {
       const leg = route.legs[0];
       const coordinates = decodePolyline(route.overview_polyline.points);
-      const safetyAnalysis = calculateRouteSafetyScore(coordinates, dummyCrimes);
+      const safetyAnalysis = calculateRouteSafetyScore(coordinates, crimeData);
       const description = generateRouteDescription(safetyAnalysis);
 
       return {
@@ -398,6 +426,114 @@ export async function fetchRouteAlternativesWithProxy(
     return processedRoutes;
   } catch (error) {
     console.error("Error fetching routes with proxy:", error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch crime data from backend API
+ * @returns Array of crime records
+ */
+export async function fetchCrimeData(): Promise<CrimeData[]> {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+  
+  try {
+    const response = await fetch(`${backendUrl}/api/crimes`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch crime data: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.success && result.data) {
+      return result.data;
+    }
+    
+    throw new Error("Invalid response format from crime API");
+  } catch (error) {
+    console.error("Error fetching crime data from API:", error);
+    // Fallback to dummy data if API fails
+    console.warn("Falling back to dummy crime data");
+    return dummyCrimes;
+  }
+}
+
+/**
+ * Fetch crime statistics from backend API
+ * @returns Crime statistics object
+ */
+export async function fetchCrimeStatistics(): Promise<CrimeStatistics> {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+  
+  try {
+    const response = await fetch(`${backendUrl}/api/crimes/statistics`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch crime statistics: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.success && result.data) {
+      return result.data;
+    }
+    
+    throw new Error("Invalid response format from crime statistics API");
+  } catch (error) {
+    console.error("Error fetching crime statistics from API:", error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch crimes within a specific area
+ * @param lat - Latitude of center point
+ * @param lng - Longitude of center point
+ * @param radius - Search radius in kilometers (default: 5km)
+ * @returns Array of crime records within the specified radius
+ */
+export async function fetchCrimesByArea(
+  lat: number,
+  lng: number,
+  radius: number = 5.0
+): Promise<CrimeData[]> {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+  
+  try {
+    const response = await fetch(
+      `${backendUrl}/api/crimes/area?lat=${lat}&lng=${lng}&radius=${radius}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch area crime data: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.success && result.data) {
+      return result.data;
+    }
+    
+    throw new Error("Invalid response format from area crime API");
+  } catch (error) {
+    console.error("Error fetching area crime data from API:", error);
     throw error;
   }
 }

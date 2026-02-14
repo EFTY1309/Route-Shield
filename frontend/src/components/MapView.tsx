@@ -15,6 +15,7 @@ import type { RouteData } from "../types/route.types";
 import { dummyCrimes } from "../data/dummyCrimes";
 import type { CrimeData } from "../data/dummyCrimes";
 import { useTheme } from "../context/ThemeContext";
+import { fetchCrimeData } from "../services/routeService";
 
 // Fix Leaflet default icon issue with Vite
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -45,8 +46,8 @@ function MapBoundsFitter({ routes }: { routes: RouteData[] }) {
     if (routes.length > 0) {
       const allCoords = routes.flatMap((route) =>
         route.coordinates.map(
-          (coord) => [coord.lat, coord.lng] as [number, number]
-        )
+          (coord) => [coord.lat, coord.lng] as [number, number],
+        ),
       );
 
       if (allCoords.length > 0) {
@@ -68,6 +69,24 @@ function MapView({
 }: MapViewProps) {
   const { theme } = useTheme();
   const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
+  const [crimes, setCrimes] = useState<CrimeData[]>(dummyCrimes);
+
+  // Fetch real crime data from API
+  useEffect(() => {
+    const loadCrimeData = async () => {
+      try {
+        const data = await fetchCrimeData();
+        if (data && data.length > 0) {
+          setCrimes(data);
+        }
+      } catch (error) {
+        console.error("Failed to load crime data for map:", error);
+        // Keep using dummyCrimes as fallback
+      }
+    };
+
+    loadCrimeData();
+  }, []);
 
   const center: LatLngExpression = [23.7808, 90.4142]; // Center on Dhaka (Gulshan area)
 
@@ -134,7 +153,7 @@ function MapView({
 
         {/* Crime Heatmap Overlay */}
         {showHeatmap &&
-          dummyCrimes.map((crime: CrimeData) => (
+          crimes.map((crime: CrimeData) => (
             <CircleMarker
               key={crime.id}
               center={[crime.lat, crime.lng]}
@@ -173,7 +192,7 @@ function MapView({
             <Polyline
               key={route.id}
               positions={route.coordinates.map(
-                (coord) => [coord.lat, coord.lng] as LatLngExpression
+                (coord) => [coord.lat, coord.lng] as LatLngExpression,
               )}
               pathOptions={{
                 color: getRouteColor(route),
