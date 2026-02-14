@@ -3,6 +3,58 @@ import type { CrimeData } from "../data/dummyCrimes";
 import type { SafetyAnalysis } from "../types/route.types";
 
 /**
+ * Crime Type Weight Mapping
+ * Higher weight = more dangerous crime type = lower safety score
+ * 
+ * Classification:
+ * - Violent crimes (Physical harm): 1.5 - 2.0x
+ * - Property crimes with violence risk: 1.2 - 1.5x
+ * - Property crimes (Non-violent): 1.0x
+ * - Minor crimes: 0.7 - 0.9x
+ */
+export const CRIME_TYPE_WEIGHTS: { [key: string]: number } = {
+  // Violent Crimes (Highest Risk)
+  "Murder": 2.0,
+  "Assault": 1.8,
+  "Robbery": 1.7,        // Armed robbery with violence
+  "Mugging": 1.6,        // Street robbery
+  "Rape": 2.0,
+  "Kidnapping": 1.9,
+  
+  // Drug-Related (High Risk - unpredictable violence)
+  "Drug Trafficking": 1.5,
+  "Drug Abuse": 1.3,
+  
+  // Property Crimes with Violence Risk (Medium-High)
+  "Burglary": 1.4,       // Breaking and entering
+  "Carjacking": 1.6,
+  
+  // Property Crimes (Medium Risk)
+  "Theft": 1.0,
+  "Vehicle Theft": 1.2,
+  "Shoplifting": 0.8,
+  
+  // Minor Crimes (Lower Risk)
+  "Pickpocketing": 0.9,
+  "Vandalism": 0.7,
+  "Fraud": 0.7,
+  "Cybercrime": 0.5,     // No physical danger
+  
+  // Traffic-Related
+  "Hit and Run": 1.3,
+  
+  // Default for unknown crime types
+  "Other": 1.0,
+};
+
+/**
+ * Get crime type weight with fallback to default
+ */
+export function getCrimeTypeWeight(crimeType: string): number {
+  return CRIME_TYPE_WEIGHTS[crimeType] || CRIME_TYPE_WEIGHTS["Other"];
+}
+
+/**
  * Calculate the distance between two coordinates using the Haversine formula
  * Returns distance in kilometers
  */
@@ -118,15 +170,20 @@ export function calculateRouteSafetyScore(
 
       // Calculate risk contribution based on:
       // 1. Distance from route (closer = higher risk)
-      // 2. Crime severity score
+      // 2. Crime severity score (1-10 scale)
       // 3. Time of day - DYNAMIC based on user's travel time
       //    - If crime happened during user's travel time: 2.0x weight (higher risk)
       //    - If crime happened at different time: 0.5x weight (lower risk)
+      // 4. Crime type weight - Different crime types have different risk levels
+      //    - Violent crimes: 1.5-2.0x (Murder, Assault, Robbery)
+      //    - Property crimes: 1.0-1.4x (Theft, Burglary)
+      //    - Minor crimes: 0.7-0.9x (Pickpocketing, Vandalism)
       const distanceFactor = 1 - distanceToRoute / proximityThresholdKm; // 1 to 0
       const severityFactor = crime.severity_score / 10; // 0 to 1
       const timeFactor = crime.time_of_day === travelTime ? 2.0 : 0.5; // Match travel time = higher risk
+      const crimeTypeWeight = getCrimeTypeWeight(crime.crime_type); // Different crime types weighted differently
 
-      const riskContribution = distanceFactor * severityFactor * timeFactor * 10;
+      const riskContribution = distanceFactor * severityFactor * timeFactor * crimeTypeWeight * 10;
       totalRiskScore += riskContribution;
 
       // Find closest route segment to mark as high risk
