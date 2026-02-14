@@ -3,12 +3,20 @@ import { useSuggestions } from "../hooks/useSuggestions";
 import { SuggestionDropdown } from "./SuggestionDropdown";
 import { QUICK_LOCATIONS } from "../constants/locations";
 import type { LocationSuggestion } from "../services/routeService";
+import type { SafetyPreferences } from "../types/preferences.types";
+import SafetyPreferencesPanel from "./SafetyPreferencesPanel";
+import {
+  loadPreferences,
+  savePreferences,
+  resetPreferences,
+} from "../utils/preferences";
 
 interface RouteSearchProps {
   onSearch: (
     origin: string,
     destination: string,
     travelTime: "Day" | "Night",
+    preferences: SafetyPreferences,
   ) => void;
   isSearching?: boolean;
 }
@@ -17,6 +25,9 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [travelTime, setTravelTime] = useState<"Day" | "Night">("Day");
+  const [preferences, setPreferences] = useState<SafetyPreferences>(() =>
+    loadPreferences(),
+  );
   const [originCoords, setOriginCoords] = useState<{
     lat: string;
     lng: string;
@@ -63,8 +74,18 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
         ? `${destCoords.lat},${destCoords.lng}`
         : destination;
 
-      onSearch(originValue, destValue, travelTime);
+      onSearch(originValue, destValue, travelTime, preferences);
     }
+  };
+
+  const handlePreferencesChange = (newPreferences: SafetyPreferences) => {
+    setPreferences(newPreferences);
+    savePreferences(newPreferences);
+  };
+
+  const handlePreferencesReset = () => {
+    const defaults = resetPreferences();
+    setPreferences(defaults);
   };
 
   const handleOriginSelect = (suggestion: LocationSuggestion) => {
@@ -198,6 +219,13 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
               : "🌙 Nighttime crimes will be weighted higher in safety scores"}
           </p>
         </div>
+
+        {/* Safety Preferences */}
+        <SafetyPreferencesPanel
+          preferences={preferences}
+          onChange={handlePreferencesChange}
+          onReset={handlePreferencesReset}
+        />
 
         {/* Quick Location Buttons */}
         <div>

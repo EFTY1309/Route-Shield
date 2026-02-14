@@ -6,6 +6,7 @@ import Dashboard from "./components/Dashboard";
 import RouteComparison from "./components/RouteComparison";
 import RouteSearch from "./components/RouteSearch";
 import type { RouteData } from "./types/route.types";
+import type { SafetyPreferences } from "./types/preferences.types";
 import { fetchRouteAlternatives } from "./services/routeService";
 
 function AppContent() {
@@ -31,6 +32,7 @@ function AppContent() {
     origin: string,
     destination: string,
     travelTime: "Day" | "Night",
+    preferences: SafetyPreferences,
   ) => {
     console.log(
       "Searching routes from:",
@@ -39,6 +41,8 @@ function AppContent() {
       destination,
       "for travel time:",
       travelTime,
+      "with preferences:",
+      preferences,
     );
 
     setIsLoadingRoutes(true);
@@ -52,6 +56,7 @@ function AppContent() {
         origin,
         destination,
         travelTime,
+        preferences,
       );
 
       setRoutes(fetchedRoutes);
@@ -238,7 +243,7 @@ function AppContent() {
             <span className="font-semibold text-blue-600 dark:text-blue-400">
               Eftekhar Mahmud Efty
             </span>{" "}
-            (ID: 1309) | IIT, University of Dhaka
+            
           </p>
         </div>
       </footer>

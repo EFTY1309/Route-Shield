@@ -1,6 +1,8 @@
 import type { Coordinate } from "../types/route.types";
 import type { CrimeData } from "../data/dummyCrimes";
 import type { SafetyAnalysis } from "../types/route.types";
+import type { SafetyPreferences } from "../types/preferences.types";
+import { getCrimeCategory, getRiskToleranceMultiplier } from "../types/preferences.types";
 
 /**
  * Crime Type Weight Mapping
@@ -138,13 +140,16 @@ export function minDistanceToRoute(
  * @param routeCoordinates - Array of coordinates that make up the route
  * @param crimeData - Array of crime data points
  * @param proximityThresholdKm - Distance threshold in km to consider a crime "near" the route
+ * @param travelTime - User's travel time (Day/Night)
+ * @param preferences - User's safety preferences for personalized scoring
  * @returns SafetyAnalysis object with score and details
  */
 export function calculateRouteSafetyScore(
   routeCoordinates: Coordinate[],
   crimeData: CrimeData[],
   proximityThresholdKm: number = 0.5, // 500 meters default
-  travelTime: "Day" | "Night" = "Day" // User's travel time
+  travelTime: "Day" | "Night" = "Day", // User's travel time
+  preferences?: SafetyPreferences // User's personalized preferences
 ): SafetyAnalysis {
   let totalRiskScore = 0;
   let crimesNearRoute = 0;
@@ -153,6 +158,11 @@ export function calculateRouteSafetyScore(
     lng: number;
     crime_count: number;
   }> = [];
+
+  // Get risk tolerance multiplier (affects all crimes)
+  const riskToleranceMultiplier = preferences 
+    ? getRiskToleranceMultiplier(preferences.riskTolerance)
+    : 1.0;
 
   // Track crimes near each route segment
   const segmentCrimeCount = new Map<number, number>();
@@ -178,12 +188,32 @@ export function calculateRouteSafetyScore(
       //    - Violent crimes: 1.5-2.0x (Murder, Assault, Robbery)
       //    - Property crimes: 1.0-1.4x (Theft, Burglary)
       //    - Minor crimes: 0.7-0.9x (Pickpocketing, Vandalism)
+      // 5. User's crime category concern (if preferences provided)
+      //    - Higher concern = higher weight for that category
+      // 6. Risk tolerance (overall multiplier affecting all crimes)
       const distanceFactor = 1 - distanceToRoute / proximityThresholdKm; // 1 to 0
       const severityFactor = crime.severity_score / 10; // 0 to 1
       const timeFactor = crime.time_of_day === travelTime ? 2.0 : 0.5; // Match travel time = higher risk
       const crimeTypeWeight = getCrimeTypeWeight(crime.crime_type); // Different crime types weighted differently
+      
+      // Apply user's crime category concern if preferences exist
+      let userConcernMultiplier = 1.0;
+      if (preferences) {
+        const category = getCrimeCategory(crime.crime_type);
+        if (category) {
+          userConcernMultiplier = preferences.crimeTypeConcerns[category];
+        }
+      }
 
-      const riskContribution = distanceFactor * severityFactor * timeFactor * crimeTypeWeight * 10;
+      const riskContribution = 
+        distanceFactor * 
+        severityFactor * 
+        timeFactor * 
+        crimeTypeWeight * 
+        userConcernMultiplier * // User's personal concern for this crime category
+        riskToleranceMultiplier * // Overall risk tolerance
+        10;
+      
       totalRiskScore += riskContribution;
 
       // Find closest route segment to mark as high risk

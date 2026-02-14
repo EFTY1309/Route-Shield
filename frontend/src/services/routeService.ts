@@ -3,6 +3,7 @@ import type {
   RouteData,
   Coordinate,
 } from "../types/route.types";
+import type { SafetyPreferences } from "../types/preferences.types";
 import { dummyCrimes } from "../data/dummyCrimes";
 import type { CrimeData } from "../data/dummyCrimes";
 import {
@@ -196,7 +197,8 @@ export async function fetchLocationSuggestions(
 export async function fetchRouteAlternatives(
   origin: string,
   destination: string,
-  travelTime: "Day" | "Night" = "Day"
+  travelTime: "Day" | "Night" = "Day",
+  preferences?: SafetyPreferences
 ): Promise<RouteData[]> {
   const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
@@ -205,6 +207,9 @@ export async function fetchRouteAlternatives(
     console.log("Fetching real crime data from API...");
     const crimeData = await fetchCrimeData();
     console.log(`Loaded ${crimeData.length} crime records for safety calculation`);
+    if (preferences) {
+      console.log("Using personalized safety preferences:", preferences);
+    }
 
     // Parse or geocode origin coordinates
     let originCoord: Coordinate;
@@ -257,7 +262,8 @@ export async function fetchRouteAlternatives(
         coordinates,
         crimeData,
         0.5, // proximityThresholdKm
-        travelTime // Pass user's travel time
+        travelTime, // Pass user's travel time
+        preferences // Pass user's personalized preferences
       );
 
       // Generate description
