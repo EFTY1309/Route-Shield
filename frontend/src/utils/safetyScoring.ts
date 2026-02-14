@@ -91,7 +91,8 @@ export function minDistanceToRoute(
 export function calculateRouteSafetyScore(
   routeCoordinates: Coordinate[],
   crimeData: CrimeData[],
-  proximityThresholdKm: number = 0.5 // 500 meters default
+  proximityThresholdKm: number = 0.5, // 500 meters default
+  travelTime: "Day" | "Night" = "Day" // User's travel time
 ): SafetyAnalysis {
   let totalRiskScore = 0;
   let crimesNearRoute = 0;
@@ -118,10 +119,12 @@ export function calculateRouteSafetyScore(
       // Calculate risk contribution based on:
       // 1. Distance from route (closer = higher risk)
       // 2. Crime severity score
-      // 3. Time of day (night crimes weighted more)
+      // 3. Time of day - DYNAMIC based on user's travel time
+      //    - If crime happened during user's travel time: 2.0x weight (higher risk)
+      //    - If crime happened at different time: 0.5x weight (lower risk)
       const distanceFactor = 1 - distanceToRoute / proximityThresholdKm; // 1 to 0
       const severityFactor = crime.severity_score / 10; // 0 to 1
-      const timeFactor = crime.time_of_day === "Night" ? 1.5 : 1.0; // Night crimes are riskier
+      const timeFactor = crime.time_of_day === travelTime ? 2.0 : 0.5; // Match travel time = higher risk
 
       const riskContribution = distanceFactor * severityFactor * timeFactor * 10;
       totalRiskScore += riskContribution;

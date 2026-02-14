@@ -195,7 +195,8 @@ export async function fetchLocationSuggestions(
  */
 export async function fetchRouteAlternatives(
   origin: string,
-  destination: string
+  destination: string,
+  travelTime: "Day" | "Night" = "Day"
 ): Promise<RouteData[]> {
   const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
@@ -251,10 +252,12 @@ export async function fetchRouteAlternatives(
     const processedRoutes: RouteData[] = routes.map((route, index) => {
       const coordinates = route.geometry;
 
-      // Calculate safety score based on REAL crime data from API
+      // Calculate safety score based on REAL crime data from API and user's travel time
       const safetyAnalysis = calculateRouteSafetyScore(
         coordinates,
-        crimeData
+        crimeData,
+        0.5, // proximityThresholdKm
+        travelTime // Pass user's travel time
       );
 
       // Generate description
@@ -300,7 +303,8 @@ export async function fetchRouteAlternatives(
  */
 export async function fetchRouteAlternativesFromGoogleMaps(
   origin: string,
-  destination: string
+  destination: string,
+  travelTime: "Day" | "Night" = "Day"
 ): Promise<RouteData[]> {
   // Use backend proxy to avoid CORS issues
   const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
@@ -328,8 +332,8 @@ export async function fetchRouteAlternativesFromGoogleMaps(
       // Decode the overview polyline to get route coordinates
       const coordinates = decodePolyline(route.overview_polyline.points);
 
-      // Calculate safety score based on REAL crime data from API
-      const safetyAnalysis = calculateRouteSafetyScore(coordinates, crimeData);
+      // Calculate safety score based on REAL crime data from API and user's travel time
+      const safetyAnalysis = calculateRouteSafetyScore(coordinates, crimeData, 0.5, travelTime);
 
       // Generate description
       const description = generateRouteDescription(safetyAnalysis);
@@ -373,7 +377,8 @@ export async function fetchRouteAlternativesFromGoogleMaps(
 export async function fetchRouteAlternativesWithProxy(
   origin: string,
   destination: string,
-  apiKey: string
+  apiKey: string,
+  travelTime: "Day" | "Night" = "Day"
 ): Promise<RouteData[]> {
   // Using a CORS proxy for development
   const corsProxy = "https://cors-anywhere.herokuapp.com/";
@@ -397,7 +402,7 @@ export async function fetchRouteAlternativesWithProxy(
     const processedRoutes: RouteData[] = data.routes.map((route, index) => {
       const leg = route.legs[0];
       const coordinates = decodePolyline(route.overview_polyline.points);
-      const safetyAnalysis = calculateRouteSafetyScore(coordinates, crimeData);
+      const safetyAnalysis = calculateRouteSafetyScore(coordinates, crimeData, 0.5, travelTime);
       const description = generateRouteDescription(safetyAnalysis);
 
       return {

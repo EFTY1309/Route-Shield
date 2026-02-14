@@ -23,12 +23,23 @@ function AppContent() {
     setSelectedRoutes((prev) =>
       prev.includes(routeId)
         ? prev.filter((id) => id !== routeId)
-        : [...prev, routeId]
+        : [...prev, routeId],
     );
   };
 
-  const handleRouteSearch = async (origin: string, destination: string) => {
-    console.log("Searching routes from:", origin, "to:", destination);
+  const handleRouteSearch = async (
+    origin: string,
+    destination: string,
+    travelTime: "Day" | "Night",
+  ) => {
+    console.log(
+      "Searching routes from:",
+      origin,
+      "to:",
+      destination,
+      "for travel time:",
+      travelTime,
+    );
 
     setIsLoadingRoutes(true);
     setRouteError(null);
@@ -37,20 +48,26 @@ function AppContent() {
 
     try {
       // Fetch routes from backend API (no API key needed - handled by backend)
-      const fetchedRoutes = await fetchRouteAlternatives(origin, destination);
+      const fetchedRoutes = await fetchRouteAlternatives(
+        origin,
+        destination,
+        travelTime,
+      );
 
       setRoutes(fetchedRoutes);
 
       // Auto-select all routes initially
       setSelectedRoutes(fetchedRoutes.map((route) => route.id));
 
-      console.log(`Found ${fetchedRoutes.length} route(s) with safety scores`);
+      console.log(
+        `Found ${fetchedRoutes.length} route(s) with safety scores for ${travelTime} travel`,
+      );
     } catch (error) {
       console.error("Error fetching routes:", error);
       setRouteError(
         error instanceof Error
           ? error.message
-          : "Failed to fetch routes. Please try again."
+          : "Failed to fetch routes. Please try again.",
       );
       setRoutes([]);
       setSelectedRoutes([]);
