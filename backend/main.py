@@ -126,8 +126,7 @@ async def health_check():
         db_status = False
     
     return {
-        "status": "healthy" if (osrm_status and db_status) else "degraded",
-        "osrm_available": osrm_status,
+        "status": "healthy" if db_status else "degraded",
         "database_available": db_status,
         "database_name": settings.MONGODB_DB_NAME
     }
@@ -142,7 +141,7 @@ async def get_all_crimes():
         List of all crime records with location, type, severity, and source information
     """
     try:
-        crimes = crime_service.get_all_crimes()
+        crimes = await crime_service.get_all_crimes()
         return {
             "success": True,
             "data": crimes,
@@ -173,7 +172,7 @@ async def get_crimes_by_area(
         List of crime records within the specified radius
     """
     try:
-        crimes = crime_service.get_crimes_by_area(lat, lng, radius)
+        crimes = await crime_service.get_crimes_by_area(lat, lng, radius)
         return {
             "success": True,
             "data": crimes,
@@ -209,7 +208,7 @@ async def get_crimes_by_time(time_of_day: str):
         )
     
     try:
-        crimes = crime_service.get_crimes_by_time(time_of_day)
+        crimes = await crime_service.get_crimes_by_time(time_of_day)
         return {
             "success": True,
             "data": crimes,
@@ -328,17 +327,6 @@ async def delete_crime(crime_id: int):
             detail=f"Failed to delete crime record: {str(e)}"
         )
 
-
-        stats = crime_service.get_crime_statistics()
-        return {
-            "success": True,
-            "data": stats
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch crime statistics: {str(e)}"
-        )
 
 
 if __name__ == "__main__":
