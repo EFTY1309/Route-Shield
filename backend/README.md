@@ -1,17 +1,41 @@
-# Safe Route API Backend
+# Safe Route API - Backend
 
-FastAPI backend service for fetching alternative routes using OSRM (Open Source Routing Machine).
+A FastAPI-based backend service for route optimization with crime data integration using MongoDB. The system provides route suggestions based on real-time crime data.
 
-## Features
+## 🏗️ Project Structure
 
-- 🚀 FastAPI-based REST API
-- 🗺️ Integration with OSRM for route calculation
-- 🔄 Multiple alternative routes support
-- ✅ Input validation with Pydantic
-- 🌐 CORS enabled for frontend integration
-- 📊 Polyline decoding for efficient geometry handling
+```
+backend/
+├── main.py                 # FastAPI application entry point
+├── config.py              # Configuration and settings management
+├── migrate_data.py        # Data migration script (JSON to MongoDB)
+├── start.py               # Quick start setup script
+├── requirements.txt       # Python dependencies
+├── .env                   # Environment variables (not in git)
+├── .env.example          # Example environment file
+│
+├── models/               # Pydantic models for validation
+│   ├── __init__.py
+│   ├── route_models.py   # Route request/response models
+│   └── crime_models.py   # Crime data models
+│
+├── services/             # Business logic layer
+│   ├── __init__.py
+│   ├── osrm_service.py   # OSRM route fetching service
+│   └── crime_service.py  # Crime data management service
+│
+├── database/             # Database connections and operations
+│   ├── __init__.py
+│   └── mongodb.py        # MongoDB connection handler
+│
+├── utils/                # Utility functions
+│   └── __init__.py
+│
+└── data/                 # Data files (for reference/migration)
+    └── dhaka_crimes_2024.json
+```
 
-## Setup
+## 🚀 Quick Start
 
 ### 1. Install Dependencies
 
@@ -20,158 +44,180 @@ cd backend
 pip install -r requirements.txt
 ```
 
-### 2. Run the Server
+### 2. Run Setup Script
 
 ```bash
-# Development mode with auto-reload
-python main.py
+python start.py
+```
 
-# Or using uvicorn directly
+This will:
+
+- ✓ Check dependencies
+- ✓ Test MongoDB connection
+- ✓ Migrate crime data to MongoDB
+- ✓ Verify setup
+
+### 3. Start Server
+
+```bash
+python main.py
+```
+
+Or using uvicorn:
+
+```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The API will be available at `http://localhost:8000`
+The API will be available at:
 
-## API Endpoints
+- **API**: http://localhost:8000
+- **Interactive Docs**: http://localhost:8000/docs
+- **Alternative Docs**: http://localhost:8000/redoc
 
-### POST /api/routes
+## 📡 API Endpoints
 
-Fetch alternative routes between source and destination.
+### Health & Info
 
-**Request Body:**
+- `GET /` - Root endpoint (health check)
+- `GET /api/health` - Detailed health check (OSRM + MongoDB status)
+
+### Routes
+
+- `POST /api/routes` - Fetch alternative routes
+
+**Request body:**
 
 ```json
 {
-  "source_lat": 23.7808,
-  "source_lng": 90.4142,
-  "dest_lat": 23.75,
-  "dest_lng": 90.39,
+  "source_lat": 23.8103,
+  "source_lng": 90.4125,
+  "dest_lat": 23.7461,
+  "dest_lng": 90.3742,
   "alternatives": 3
 }
 ```
 
-**Response:**
+### Crime Data
 
-```json
-[
-  {
-    "distance": 5234.5,
-    "duration": 890.0,
-    "geometry": [
-      {"lat": 23.7808, "lng": 90.4142},
-      {"lat": 23.7810, "lng": 90.4145},
-      ...
-    ],
-    "distance_text": "5.2 km",
-    "duration_text": "15 mins",
-    "route_index": 0
-  },
-  ...
-]
+- `GET /api/crimes` - Get all crime records
+- `GET /api/crimes/area?lat={lat}&lng={lng}&radius={km}` - Get crimes by area
+- `GET /api/crimes/time/{time_of_day}` - Filter by time (Day/Night)
+- `GET /api/crimes/statistics` - Get crime statistics
+- `POST /api/crimes` - Create new crime record
+- `PUT /api/crimes/{crime_id}` - Update crime record
+- `DELETE /api/crimes/{crime_id}` - Delete crime record
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and configure:
+
+```env
+MONGODB_URL=your-mongodb-connection-string
+MONGODB_DB_NAME=route_shield_db
+OSRM_BASE_URL=http://router.project-osrm.org
+GOOGLE_MAPS_API_KEY=your-api-key
 ```
 
-### GET /api/health
+### MongoDB Configuration
 
-Health check endpoint to verify API and OSRM availability.
+The MongoDB connection string is pre-configured in `config.py`. The database uses:
 
-**Response:**
+- **Database**: `route_shield_db`
+- **Collection**: `crimes`
+- **Indexes**: Geospatial index on `location` field for proximity queries
+
+## 🗄️ Database Schema
+
+### Crimes Collection
 
 ```json
 {
-  "status": "healthy",
-  "osrm_available": true
+  "id": 1,
+  "lat": 23.7104,
+  "lng": 90.4074,
+  "location": {
+    "type": "Point",
+    "coordinates": [90.4074, 23.7104]
+  },
+  "crime_type": "Mugging",
+  "time_of_day": "Night",
+  "severity_score": 9,
+  "location_name": "Sadarghat",
+  "date": "2024-12-15",
+  "police_station": "Kotwali",
+  "source": "Prothom Alo",
+  "created_at": "2024-12-15T10:30:00Z",
+  "updated_at": "2024-12-15T10:30:00Z"
 }
 ```
 
-## OSRM Configuration
+## 📦 Dependencies
 
-By default, the API uses the public OSRM server (`http://router.project-osrm.org`).
+- **FastAPI** - Modern web framework
+- **Uvicorn** - ASGI server
+- **Motor** - Async MongoDB driver
+- **PyMongo** - MongoDB driver
+- **Pydantic** - Data validation
+- **HTTPX** - Async HTTP client
+- **Polyline** - Polyline encoding/decoding
 
-### Using Local OSRM Server
+## 🔄 Data Migration
 
-To use a local OSRM instance:
-
-1. Update `osrm_service.py`:
-
-   ```python
-   osrm_service = OSRMService(base_url="http://localhost:5000")
-   ```
-
-2. Or modify the `OSRMService` initialization in `main.py`
-
-### Setting up Local OSRM (Optional)
+To migrate crime data from JSON to MongoDB:
 
 ```bash
-# Using Docker
-docker run -t -i -p 5000:5000 osrm/osrm-backend osrm-routed --algorithm mld /data/bangladesh-latest.osrm
+python migrate_data.py
 ```
 
-## Testing
+Select option 1 to migrate, option 2 to verify.
 
-### Using cURL
+## 🧪 Testing
 
-```bash
-curl -X POST "http://localhost:8000/api/routes" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "source_lat": 23.7808,
-    "source_lng": 90.4142,
-    "dest_lat": 23.7500,
-    "dest_lng": 90.3900,
-    "alternatives": 3
-  }'
-```
-
-### Using Python
-
-```python
-import requests
-
-response = requests.post(
-    "http://localhost:8000/api/routes",
-    json={
-        "source_lat": 23.7808,
-        "source_lng": 90.4142,
-        "dest_lat": 23.7500,
-        "dest_lng": 90.3900,
-        "alternatives": 3
-    }
-)
-
-routes = response.json()
-print(f"Found {len(routes)} routes")
-```
-
-## API Documentation
-
-Once the server is running, visit:
-
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
-
-## Project Structure
+Access the interactive API documentation:
 
 ```
-backend/
-├── main.py              # FastAPI app and endpoints
-├── models.py            # Pydantic models for request/response
-├── osrm_service.py      # OSRM API integration
-├── requirements.txt     # Python dependencies
-└── README.md           # This file
+http://localhost:8000/docs
 ```
 
-## Notes
+Test endpoints directly from the browser interface.
 
-- The public OSRM server has usage limits. For production, consider hosting your own OSRM instance.
-- OSRM typically returns up to 3 alternative routes maximum.
-- Coordinates are validated to ensure they're within valid ranges.
-- Polyline encoding is used for efficient geometry transmission.
+## 🚨 Troubleshooting
 
-## Error Handling
+### MongoDB Connection Issues
 
-The API handles various error scenarios:
+- Verify connection string in `config.py`
+- Check network access in MongoDB Atlas
+- Whitelist your IP address
 
-- Invalid coordinates (400 Bad Request)
-- No routes found (404 Not Found)
-- OSRM service unavailable (500 Internal Server Error)
-- Timeout errors (500 Internal Server Error)
+### OSRM Issues
+
+- Public OSRM may have rate limits
+- Check OSRM status at `/api/health`
+- Consider running local OSRM server
+
+### Migration Issues
+
+- Ensure `data/dhaka_crimes_2024.json` exists
+- Check MongoDB connection before migration
+- Use verify option in migrate script
+
+## 📊 Performance
+
+- Database indexes created automatically on startup
+- Connection pooling configured for MongoDB
+- Async operations throughout
+- Geospatial queries optimized with 2dsphere index
+
+## 🤝 Contributing
+
+1. Follow the existing project structure
+2. Add type hints to all functions
+3. Document all API endpoints
+4. Test locally before committing
+
+## 📄 License
+
+MIT License
