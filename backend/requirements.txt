@@ -1,6 +1,19 @@
+# FastAPI and Web Framework
 fastapi==0.109.0
 uvicorn[standard]==0.27.0
-httpx==0.26.0
-pydantic==2.5.3
-polyline==2.0.1
 python-multipart==0.0.6
+
+# HTTP Client
+httpx==0.26.0
+
+# Data Validation
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# MongoDB
+motor==3.3.2
+pymongo==4.6.1
+
+# Utilities
+polyline==2.0.1
+python-dotenv==1.0.0

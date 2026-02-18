@@ -1,31 +1,65 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import List, Optional
+from contextlib import asynccontextmanager
+from typing import List
 import uvicorn
+import logging
 
-from osrm_service import OSRMService
+from config import settings
+from database import MongoDB
 from models import RouteRequest, RouteResponse
-from crime_data import crime_service
+from services import OSRMService, CrimeService
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+# Lifespan context manager for startup and shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application lifecycle"""
+    # Startup
+    logger.info("Starting application...")
+    try:
+        await MongoDB.connect_to_database()
+        await crime_service.initialize()
+        logger.info("✓ Application started successfully")
+    except Exception as e:
+        logger.error(f"Failed to start application: {e}")
+        raise
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down application...")
+    await MongoDB.close_database_connection()
+    logger.info("✓ Application shutdown complete")
+
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Safe Route API",
-    description="API for fetching alternative routes using OSRM",
-    version="1.0.0"
+    title=settings.API_TITLE,
+    description=settings.API_DESCRIPTION,
+    version=settings.API_VERSION,
+    lifespan=lifespan
 )
 
-# Configure CORS to allow frontend requests
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend URL
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Initialize OSRM service
+# Initialize services
 osrm_service = OSRMService()
+crime_service = CrimeService()
 
 
 @app.get("/")
@@ -34,7 +68,8 @@ async def root():
     return {
         "message": "Safe Route API is running",
         "status": "healthy",
-        "version": "1.0.0"
+        "version": settings.API_VERSION,
+        "database": settings.MONGODB_DB_NAME
     }
 
 
@@ -81,10 +116,20 @@ async def get_routes(request: RouteRequest):
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint"""
-    osrm_status = await osrm_service.check_osrm_availability()
+    
+    # Check MongoDB connection
+    try:
+        db = MongoDB.get_database()
+        await db.command('ping')
+        db_status = True
+    except:
+        db_status = False
+    
     return {
-        "status": "healthy" if osrm_status else "degraded",
-        "osrm_available": osrm_status
+        "status": "healthy" if (osrm_status and db_status) else "degraded",
+        "osrm_available": osrm_status,
+        "database_available": db_status,
+        "database_name": settings.MONGODB_DB_NAME
     }
 
 
@@ -187,6 +232,103 @@ async def get_crime_statistics():
         Crime statistics including totals, distribution, and high-risk areas
     """
     try:
+        stats = await crime_service.get_crime_statistics()
+        return {
+            "success": True,
+            "data": stats
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch crime statistics: {str(e)}"
+        )
+
+
+@app.post("/api/crimes")
+async def create_crime(crime_data: dict):
+    """
+    Create a new crime record.
+    
+    Args:
+        crime_data: Crime data to create
+        
+    Returns:
+        Created crime record
+    """
+    try:
+        crime = await crime_service.create_crime(crime_data)
+        return {
+            "success": True,
+            "data": crime,
+            "message": "Crime record created successfully"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to create crime record: {str(e)}"
+        )
+
+
+@app.put("/api/crimes/{crime_id}")
+async def update_crime(crime_id: int, crime_data: dict):
+    """
+    Update an existing crime record.
+    
+    Args:
+        crime_id: ID of the crime to update
+        crime_data: Updated crime data
+        
+    Returns:
+        Updated crime record
+    """
+    try:
+        crime = await crime_service.update_crime(crime_id, crime_data)
+        if crime:
+            return {
+                "success": True,
+                "data": crime,
+                "message": "Crime record updated successfully"
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Crime not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to update crime record: {str(e)}"
+        )
+
+
+@app.delete("/api/crimes/{crime_id}")
+async def delete_crime(crime_id: int):
+    """
+    Delete a crime record.
+    
+    Args:
+        crime_id: ID of the crime to delete
+        
+    Returns:
+        Success message
+    """
+    try:
+        deleted = await crime_service.delete_crime(crime_id)
+        if deleted:
+            return {
+                "success": True,
+                "message": "Crime record deleted successfully"
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Crime not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to delete crime record: {str(e)}"
+        )
+
+
         stats = crime_service.get_crime_statistics()
         return {
             "success": True,
