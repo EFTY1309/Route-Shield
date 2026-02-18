@@ -306,6 +306,43 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
             </>
           )}
         </button>
+
+        {/* Get Directions Button */}
+        <button
+          type="button"
+          onClick={() => {
+            const originValue = originCoords
+              ? `${originCoords.lat},${originCoords.lng}`
+              : encodeURIComponent(origin);
+            const destValue = destCoords
+              ? `${destCoords.lat},${destCoords.lng}`
+              : encodeURIComponent(destination);
+
+            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originValue}&destination=${destValue}`;
+            window.open(googleMapsUrl, "_blank");
+          }}
+          disabled={!origin.trim() || !destination.trim()}
+          className={`w-full py-2.5 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
+            !origin.trim() || !destination.trim()
+              ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg"
+          }`}
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+            />
+          </svg>
+          Get Directions on Google Maps
+        </button>
       </form>
 
       {/* Info Text */}
