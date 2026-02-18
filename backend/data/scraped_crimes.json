@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "lat": 23.7561,
+    "lng": 90.3861,
+    "crime_type": "Crime",
+    "time_of_day": "Night",
+    "severity_score": 5,
+    "location_name": "Dhaka",
+    "date": "2026-02-19",
+    "police_station": "Dhaka",
+    "source": "Prothom Alo"
+  },
+  {
+    "id": 2,
+    "lat": 23.7561,
+    "lng": 90.3861,
+    "crime_type": "Murder",
+    "time_of_day": "Day",
+    "severity_score": 10,
+    "location_name": "Dhaka",
+    "date": "2026-02-19",
+    "police_station": "Dhaka",
+    "source": "Prothom Alo"
+  },
+  {
+    "id": 3,
+    "lat": 23.7561,
+    "lng": 90.3861,
+    "crime_type": "Arson/Fire",
+    "time_of_day": "Night",
+    "severity_score": 6,
+    "location_name": "Dhaka",
+    "date": "2026-02-19",
+    "police_station": "Dhaka",
+    "source": "Prothom Alo"
+  }
+]
