@@ -5,6 +5,8 @@ import {
   PieChart,
   Pie,
   Cell,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -87,6 +89,24 @@ function Dashboard() {
       ) / crimes.length
     ).toFixed(1);
 
+    // Weekly trend data — group crimes by week start date
+    const weekMap = new Map<string, number>();
+    crimes.forEach((crime: CrimeData) => {
+      const date = new Date(crime.date);
+      // Round down to Monday of that week
+      const day = date.getDay(); // 0=Sun
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(date.setDate(diff));
+      const key = monday.toISOString().slice(0, 10);
+      weekMap.set(key, (weekMap.get(key) || 0) + 1);
+    });
+    const trendData = Array.from(weekMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, count]) => ({
+        week: date.slice(5).replace("-", "/"), // "MM/DD"
+        crimes: count,
+      }));
+
     return {
       total: crimes.length,
       dayCrimes: dayCrimes.length,
@@ -94,6 +114,7 @@ function Dashboard() {
       crimeTypeData,
       timeData,
       avgSeverity,
+      trendData,
     };
   }, [crimes]);
 
@@ -154,6 +175,45 @@ function Dashboard() {
               <div className="text-3xl font-bold">{crimeStats.nightCrimes}</div>
               <div className="text-xs opacity-75 mt-1">6 PM - 6 AM</div>
             </div>
+          </div>
+
+          {/* Safety Trend Over Time */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-1 text-gray-800 dark:text-gray-200">
+              Crime Trend by Week
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              Weekly reported incidents — is Dhaka getting safer?
+            </p>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={crimeStats.trendData}>
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                <XAxis
+                  dataKey="week"
+                  stroke={textColor}
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis stroke={textColor} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: isDark ? "#1f2937" : "#ffffff",
+                    border: "1px solid " + gridColor,
+                    borderRadius: "8px",
+                    color: textColor,
+                  }}
+                  formatter={(value: number) => [value, "Crimes"]}
+                  labelFormatter={(label) => `Week of ${label}`}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="crimes"
+                  stroke="#ef4444"
+                  strokeWidth={2}
+                  dot={{ fill: "#ef4444", r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
 
           {/* Crime by Time Chart */}

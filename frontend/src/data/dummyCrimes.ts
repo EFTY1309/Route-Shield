@@ -7,6 +7,8 @@ export interface CrimeData {
   severity_score: number;
   location_name: string;
   date: string;
+  police_station?: string;
+  source?: string;
 }
 
 export const dummyCrimes: CrimeData[] = [

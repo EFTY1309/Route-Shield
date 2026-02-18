@@ -33,9 +33,11 @@ Icon.Default.mergeOptions({
 interface MapViewProps {
   selectedRoutes: number[];
   showHeatmap: boolean;
+  showPoliceStations: boolean;
   routes: RouteData[];
   origin?: string;
   destination?: string;
+  travelTime?: "Day" | "Night";
 }
 
 // Component to auto-fit map bounds when routes change
@@ -60,12 +62,46 @@ function MapBoundsFitter({ routes }: { routes: RouteData[] }) {
   return null;
 }
 
+// Derive police station centroids from crime data
+function derivePoliceStations(crimes: CrimeData[]) {
+  const stationMap = new Map<
+    string,
+    { lat: number; lng: number; count: number }
+  >();
+  crimes.forEach((crime) => {
+    const stationName = crime.police_station;
+    if (!stationName) return;
+    const existing = stationMap.get(stationName);
+    if (existing) {
+      existing.lat =
+        (existing.lat * existing.count + crime.lat) / (existing.count + 1);
+      existing.lng =
+        (existing.lng * existing.count + crime.lng) / (existing.count + 1);
+      existing.count++;
+    } else {
+      stationMap.set(stationName, {
+        lat: crime.lat,
+        lng: crime.lng,
+        count: 1,
+      });
+    }
+  });
+  return Array.from(stationMap.entries()).map(([name, coords]) => ({
+    name,
+    lat: coords.lat,
+    lng: coords.lng,
+    count: coords.count,
+  }));
+}
+
 function MapView({
   selectedRoutes,
   showHeatmap,
+  showPoliceStations,
   routes,
   origin,
   destination,
+  travelTime = "Day",
 }: MapViewProps) {
   const { theme } = useTheme();
   const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
@@ -134,6 +170,24 @@ function MapView({
     shadowSize: [41, 41],
   });
 
+  const policeIcon = new Icon({
+    iconUrl:
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+    shadowUrl: markerShadow,
+    iconSize: [20, 33],
+    iconAnchor: [10, 33],
+    popupAnchor: [1, -28],
+    shadowSize: [33, 33],
+  });
+
+  // Filter crimes by current travel time for the heatmap
+  const filteredCrimes = crimes.filter(
+    (crime) => crime.time_of_day === travelTime,
+  );
+
+  // Derive police station locations from crime data
+  const policeStations = derivePoliceStations(crimes);
+
   return (
     <div className="h-full w-full relative">
       <MapContainer
@@ -151,9 +205,9 @@ function MapView({
           }
         />
 
-        {/* Crime Heatmap Overlay */}
+        {/* Crime Heatmap Overlay - filtered by travel time */}
         {showHeatmap &&
-          crimes.map((crime: CrimeData) => (
+          filteredCrimes.map((crime: CrimeData) => (
             <CircleMarker
               key={crime.id}
               center={[crime.lat, crime.lng]}
@@ -180,6 +234,27 @@ function MapView({
                 </div>
               </Popup>
             </CircleMarker>
+          ))}
+
+        {/* Police Station Markers */}
+        {showPoliceStations &&
+          policeStations.map((station) => (
+            <Marker
+              key={station.name}
+              position={[station.lat, station.lng]}
+              icon={policeIcon}
+            >
+              <Popup>
+                <div className="text-sm">
+                  <h3 className="font-bold text-blue-700">🚔 Police Station</h3>
+                  <p className="text-gray-800 font-medium">{station.name}</p>
+                  <p className="text-gray-600 text-xs">
+                    {station.count} incident{station.count !== 1 ? "s" : ""}{" "}
+                    reported nearby
+                  </p>
+                </div>
+              </Popup>
+            </Marker>
           ))}
 
         {/* Auto-fit bounds when routes change */}
@@ -284,6 +359,9 @@ function MapView({
           {showHeatmap && (
             <>
               <hr className="my-1 border-gray-300 dark:border-gray-600" />
+              <p className="text-gray-500 dark:text-gray-400 italic">
+                {travelTime === "Day" ? "☀️ Day crimes" : "🌙 Night crimes"}
+              </p>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-600 opacity-40"></div>
                 <span className="text-gray-700 dark:text-gray-300">
@@ -294,6 +372,17 @@ function MapView({
                 <div className="w-3 h-3 rounded-full bg-yellow-400 opacity-40"></div>
                 <span className="text-gray-700 dark:text-gray-300">
                   Low Crime
+                </span>
+              </div>
+            </>
+          )}
+          {showPoliceStations && (
+            <>
+              <hr className="my-1 border-gray-300 dark:border-gray-600" />
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                <span className="text-gray-700 dark:text-gray-300">
+                  Police Station
                 </span>
               </div>
             </>

@@ -13,12 +13,16 @@ function AppContent() {
   const { theme, toggleTheme } = useTheme();
   const [selectedRoutes, setSelectedRoutes] = useState<number[]>([]);
   const [showHeatmap, setShowHeatmap] = useState(true);
+  const [showPoliceStations, setShowPoliceStations] = useState(false);
   const [activeTab, setActiveTab] = useState<"dashboard" | "routes">("routes");
   const [routes, setRoutes] = useState<RouteData[]>([]);
   const [isLoadingRoutes, setIsLoadingRoutes] = useState(false);
   const [routeError, setRouteError] = useState<string | null>(null);
   const [searchedOrigin, setSearchedOrigin] = useState<string>("");
   const [searchedDestination, setSearchedDestination] = useState<string>("");
+  const [currentTravelTime, setCurrentTravelTime] = useState<"Day" | "Night">(
+    "Day",
+  );
 
   const handleRouteToggle = (routeId: number) => {
     setSelectedRoutes((prev) =>
@@ -49,6 +53,7 @@ function AppContent() {
     setRouteError(null);
     setSearchedOrigin(origin);
     setSearchedDestination(destination);
+    setCurrentTravelTime(travelTime);
 
     try {
       // Fetch routes from backend API (no API key needed - handled by backend)
@@ -128,6 +133,18 @@ function AppContent() {
                 {showHeatmap ? "🔥 Hide Heatmap" : "🗺️ Show Heatmap"}
               </button>
 
+              {/* Police Stations Toggle */}
+              <button
+                onClick={() => setShowPoliceStations(!showPoliceStations)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                  showPoliceStations
+                    ? "bg-blue-500 hover:bg-blue-600 text-white shadow-md"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                }`}
+              >
+                🚔 {showPoliceStations ? "Hide Stations" : "Police Stations"}
+              </button>
+
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
@@ -177,9 +194,11 @@ function AppContent() {
             <MapView
               selectedRoutes={selectedRoutes}
               showHeatmap={showHeatmap}
+              showPoliceStations={showPoliceStations}
               routes={routes}
               origin={searchedOrigin}
               destination={searchedDestination}
+              travelTime={currentTravelTime}
             />
           </div>
 
@@ -243,7 +262,6 @@ function AppContent() {
             <span className="font-semibold text-blue-600 dark:text-blue-400">
               Eftekhar Mahmud Efty
             </span>{" "}
-            
           </p>
         </div>
       </footer>
