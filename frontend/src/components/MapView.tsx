@@ -207,7 +207,6 @@ function MapView({
               <Popup>
                 <div className="text-sm">
                   <h3 className="font-bold text-gray-900">{route.name}</h3>
-                  <p className="text-gray-700">Duration: {route.duration}</p>
                   <p className="text-gray-700">Distance: {route.distance}</p>
                   <p className="text-gray-700">
                     Safety Score: {route.safety_score}/100
