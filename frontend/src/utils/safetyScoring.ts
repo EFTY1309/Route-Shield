@@ -153,6 +153,7 @@ export function calculateRouteSafetyScore(
 ): SafetyAnalysis {
   let totalRiskScore = 0;
   let crimesNearRoute = 0;
+  const nearbyCrimes: CrimeData[] = [];
   const highRiskSegments: Array<{
     lat: number;
     lng: number;
@@ -177,6 +178,7 @@ export function calculateRouteSafetyScore(
     // If crime is within proximity threshold
     if (distanceToRoute <= proximityThresholdKm) {
       crimesNearRoute++;
+      nearbyCrimes.push(crime);
 
       // Calculate risk contribution based on:
       // 1. Distance from route (closer = higher risk)
@@ -278,6 +280,7 @@ export function calculateRouteSafetyScore(
     safety_score: Math.round(safetyScore),
     risk_level: riskLevel,
     crimes_near_route: crimesNearRoute,
+    nearby_crimes: nearbyCrimes,
     high_risk_segments: highRiskSegments,
   };
 }

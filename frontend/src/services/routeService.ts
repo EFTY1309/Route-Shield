@@ -280,6 +280,7 @@ export async function fetchRouteAlternatives(
         safety_score: safetyAnalysis.safety_score,
         risk_level: safetyAnalysis.risk_level,
         crimes_on_route: safetyAnalysis.crimes_near_route,
+        nearby_crimes: safetyAnalysis.nearby_crimes,
         description,
       };
     });
@@ -355,6 +356,7 @@ export async function fetchRouteAlternativesFromGoogleMaps(
         safety_score: safetyAnalysis.safety_score,
         risk_level: safetyAnalysis.risk_level,
         crimes_on_route: safetyAnalysis.crimes_near_route,
+        nearby_crimes: safetyAnalysis.nearby_crimes,
         description,
       };
     });
@@ -422,6 +424,7 @@ export async function fetchRouteAlternativesWithProxy(
         safety_score: safetyAnalysis.safety_score,
         risk_level: safetyAnalysis.risk_level,
         crimes_on_route: safetyAnalysis.crimes_near_route,
+        nearby_crimes: safetyAnalysis.nearby_crimes,
         description,
       };
     });

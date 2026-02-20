@@ -1,5 +1,7 @@
 // Types for Google Maps Direction API and Route processing
 
+import type { CrimeData } from "../data/dummyCrimes";
+
 export interface Coordinate {
   lat: number;
   lng: number;
@@ -14,6 +16,7 @@ export interface RouteData {
   safety_score: number;
   risk_level: "Low" | "Medium" | "High";
   crimes_on_route: number;
+  nearby_crimes?: CrimeData[];
   description: string;
   distanceValue: number; // in meters
   durationValue: number; // in seconds
@@ -44,6 +47,7 @@ export interface SafetyAnalysis {
   safety_score: number;
   risk_level: "Low" | "Medium" | "High";
   crimes_near_route: number;
+  nearby_crimes: CrimeData[];
   high_risk_segments: Array<{
     lat: number;
     lng: number;
