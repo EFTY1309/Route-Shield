@@ -3,7 +3,8 @@ OSRM Service for route fetching and processing.
 """
 import httpx
 import polyline
-from typing import List, Dict, Any
+import math
+from typing import List, Dict, Any, Optional
 from models import RouteResponse, Coordinate
 from config import settings
 
@@ -67,6 +68,17 @@ class OSRMService:
                     raise Exception(f"OSRM error: {data.get('message', 'Unknown error')}")
                 
                 routes = self._parse_osrm_response(data)
+                
+                # Guarantee at least 2 alternative routes
+                if len(routes) < 2:
+                    extras = await self._get_waypoint_alternatives(
+                        source_lat, source_lng, dest_lat, dest_lng,
+                        needed=2 - len(routes),
+                        start_index=len(routes),
+                        client=client
+                    )
+                    routes.extend(extras)
+                
                 return routes
                 
             except httpx.TimeoutException:
@@ -85,6 +97,111 @@ class OSRMService:
         except:
             return False
     
+    async def _get_waypoint_alternatives(
+        self,
+        source_lat: float,
+        source_lng: float,
+        dest_lat: float,
+        dest_lng: float,
+        needed: int,
+        start_index: int,
+        client: httpx.AsyncClient
+    ) -> List[RouteResponse]:
+        """
+        Generate alternative routes by routing through perpendicular-offset waypoints
+        when OSRM doesn't return enough alternatives on its own.
+        """
+        results: List[RouteResponse] = []
+
+        # Midpoint between source and destination
+        mid_lat = (source_lat + dest_lat) / 2
+        mid_lng = (source_lng + dest_lng) / 2
+
+        # Direction vector and its length (in degrees)
+        dlat = dest_lat - source_lat
+        dlng = dest_lng - source_lng
+        length = math.sqrt(dlat ** 2 + dlng ** 2)
+
+        if length == 0:
+            return results
+
+        # Perpendicular unit vector (rotated 90°)
+        perp_lat = -dlng / length
+        perp_lng = dlat / length
+
+        # Offset magnitudes to try; alternate sides to get genuinely different paths.
+        # ~0.02° ≈ 2 km, ~0.04° ≈ 4 km — enough to force a different road network path.
+        offsets = [0.025, -0.025, 0.05, -0.05]
+
+        for offset in offsets:
+            if len(results) >= needed:
+                break
+
+            wp_lat = mid_lat + perp_lat * offset
+            wp_lng = mid_lng + perp_lng * offset
+
+            route = await self._get_route_via_waypoint(
+                source_lat, source_lng,
+                wp_lat, wp_lng,
+                dest_lat, dest_lng,
+                route_index=start_index + len(results),
+                client=client
+            )
+            if route is not None:
+                results.append(route)
+
+        return results
+
+    async def _get_route_via_waypoint(
+        self,
+        source_lat: float,
+        source_lng: float,
+        wp_lat: float,
+        wp_lng: float,
+        dest_lat: float,
+        dest_lng: float,
+        route_index: int,
+        client: httpx.AsyncClient
+    ) -> Optional[RouteResponse]:
+        """Request a single route from OSRM that passes through an intermediate waypoint."""
+        coord_str = (
+            f"{source_lng},{source_lat};"
+            f"{wp_lng},{wp_lat};"
+            f"{dest_lng},{dest_lat}"
+        )
+        url = f"{self.base_url}/route/v1/driving/{coord_str}"
+        params = {
+            "alternatives": "false",
+            "steps": "false",
+            "geometries": "polyline",
+            "overview": "full",
+            "annotations": "false",
+        }
+        try:
+            response = await client.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+            if data.get("code") != "Ok" or not data.get("routes"):
+                return None
+
+            route = data["routes"][0]
+            distance = route.get("distance", 0)
+            duration = route.get("duration", 0)
+            geometry_polyline = route.get("geometry", "")
+            coordinates = self._decode_polyline(geometry_polyline)
+
+            return RouteResponse(
+                distance=distance,
+                duration=duration,
+                geometry=coordinates,
+                distance_text=self._format_distance(distance),
+                duration_text=self._format_duration(duration),
+                route_index=route_index,
+            )
+        except Exception:
+            return None
+
     def _parse_osrm_response(self, data: Dict[str, Any]) -> List[RouteResponse]:
         """Parse OSRM response and convert to RouteResponse objects"""
         routes = []
