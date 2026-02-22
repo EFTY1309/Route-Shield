@@ -34,9 +34,7 @@ function Dashboard() {
         const data = await fetchCrimeData();
         if (data && data.length > 0) {
           setCrimes(data);
-          setDataSource(
-            "Real crime data from Dhaka Metropolitan Police & News Sources (2024-2025)",
-          );
+          setDataSource("");
         } else {
           setDataSource("Dummy data (API returned empty)");
         }
