@@ -126,14 +126,14 @@ function MapView({
 
   const center: LatLngExpression = [23.7808, 90.4142]; // Center on Dhaka (Gulshan area)
 
-  // Get color based on route safety score
+  // Get color based on route safety score (0-10 scale)
   const getRouteColor = (route: RouteData) => {
     if (hoveredRoute === route.id) {
       return "#FFD700"; // Gold when hovered
     }
-    if (route.safety_score >= 85) return "#22c55e"; // Green for safe
-    if (route.safety_score >= 70) return "#22c55e"; // Green for moderate
-    return "#ef4444"; // Red for risky
+    if (route.safety_score >= 7.5) return "#22c55e"; // Green for safe (Low risk)
+    if (route.safety_score >= 5.0) return "#f97316"; // Orange for moderate (Medium risk)
+    return "#ef4444"; // Red for risky (High risk)
   };
 
   // Get color based on crime severity
@@ -281,7 +281,7 @@ function MapView({
                   <h3 className="font-bold text-gray-900">{route.name}</h3>
                   <p className="text-gray-700">Distance: {route.distance}</p>
                   <p className="text-gray-700">
-                    Safety Score: {route.safety_score}/100
+                    Safety Score: {route.safety_score}/10
                   </p>
                   <p className="text-gray-700">
                     Risk Level: {route.risk_level}
@@ -338,19 +338,19 @@ function MapView({
           <div className="flex items-center gap-2">
             <div className="w-4 h-1 bg-green-500"></div>
             <span className="text-gray-700 dark:text-gray-300">
-              Safe Route (85+)
+              Safe (7.5–10)
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-1 bg-green-500"></div>
+            <div className="w-4 h-1 bg-orange-500"></div>
             <span className="text-gray-700 dark:text-gray-300">
-              Moderate (70-84)
+              Moderate (5–7.4)
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-1 bg-red-500"></div>
             <span className="text-gray-700 dark:text-gray-300">
-              Risky (&lt;70)
+              Risky (&lt;5)
             </span>
           </div>
           {showHeatmap && (

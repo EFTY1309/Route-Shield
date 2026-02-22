@@ -36,14 +36,14 @@ function RouteComparison({
   };
 
   const getSafetyScoreColor = (score: number) => {
-    if (score >= 85) return "text-green-600 dark:text-green-400";
-    if (score >= 70) return "text-orange-600 dark:text-orange-400";
+    if (score >= 7.5) return "text-green-600 dark:text-green-400";
+    if (score >= 5.0) return "text-orange-600 dark:text-orange-400";
     return "text-red-600 dark:text-red-400";
   };
 
   const getSafetyScoreBarColor = (score: number) => {
-    if (score >= 85) return "bg-green-500";
-    if (score >= 70) return "bg-orange-500";
+    if (score >= 7.5) return "bg-green-500";
+    if (score >= 5.0) return "bg-orange-500";
     return "bg-red-500";
   };
 
@@ -227,7 +227,7 @@ function RouteComparison({
                         route.safety_score,
                       )}`}
                     >
-                      {route.safety_score}/100
+                      {route.safety_score}/10
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
@@ -235,7 +235,7 @@ function RouteComparison({
                       className={`h-2.5 rounded-full transition-all duration-500 ${getSafetyScoreBarColor(
                         route.safety_score,
                       )}`}
-                      style={{ width: `${route.safety_score}%` }}
+                      style={{ width: `${route.safety_score * 10}%` }}
                     ></div>
                   </div>
                 </div>

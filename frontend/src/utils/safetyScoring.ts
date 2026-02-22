@@ -251,7 +251,7 @@ export function calculateRouteSafetyScore(
     }
   });
 
-  // Calculate safety score (0-100, where 100 is safest)
+  // Calculate safety score (0-100 internally, converted to 0-10 for output)
   // Base score starts at 100
   let safetyScore = 100;
 
@@ -266,18 +266,21 @@ export function calculateRouteSafetyScore(
   const highRiskPenalty = highRiskSegments.length * 5; // 5 points per high-risk segment
   safetyScore = Math.max(0, safetyScore - highRiskPenalty);
 
-  // Determine risk level based on safety score
+  // Convert to 0-10 scale (1 decimal place)
+  const safetyScore10 = Math.round(safetyScore) / 10;
+
+  // Determine risk level based on safety score (0-10 scale)
   let riskLevel: "Low" | "Medium" | "High";
-  if (safetyScore >= 75) {
+  if (safetyScore10 >= 7.5) {
     riskLevel = "Low";
-  } else if (safetyScore >= 50) {
+  } else if (safetyScore10 >= 5.0) {
     riskLevel = "Medium";
   } else {
     riskLevel = "High";
   }
 
   return {
-    safety_score: Math.round(safetyScore),
+    safety_score: safetyScore10,
     risk_level: riskLevel,
     crimes_near_route: crimesNearRoute,
     nearby_crimes: nearbyCrimes,
@@ -291,15 +294,15 @@ export function calculateRouteSafetyScore(
 export function generateRouteDescription(analysis: SafetyAnalysis): string {
   const { safety_score, crimes_near_route, high_risk_segments } = analysis;
 
-  if (safety_score >= 85) {
+  if (safety_score >= 8.5) {
     return `This route is very safe with minimal crime activity. Only ${crimes_near_route} crime(s) reported nearby. Recommended for all times.`;
-  } else if (safety_score >= 70) {
+  } else if (safety_score >= 7.0) {
     return `This route is relatively safe with ${crimes_near_route} crime(s) nearby. ${
       high_risk_segments.length > 0
         ? `Be cautious in ${high_risk_segments.length} area(s).`
         : "Generally safe for travel."
     }`;
-  } else if (safety_score >= 50) {
+  } else if (safety_score >= 5.0) {
     return `This route passes through ${crimes_near_route} crime-prone area(s). ${
       high_risk_segments.length > 0
         ? `${high_risk_segments.length} high-risk segment(s) identified.`
