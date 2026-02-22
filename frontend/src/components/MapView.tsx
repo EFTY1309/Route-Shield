@@ -132,7 +132,7 @@ function MapView({
       return "#FFD700"; // Gold when hovered
     }
     if (route.safety_score >= 85) return "#22c55e"; // Green for safe
-    if (route.safety_score >= 70) return "#f59e0b"; // Orange for moderate
+    if (route.safety_score >= 70) return "#22c55e"; // Green for moderate
     return "#ef4444"; // Red for risky
   };
 
@@ -345,7 +345,7 @@ function MapView({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-1 bg-orange-500"></div>
+            <div className="w-4 h-1 bg-green-500"></div>
             <span className="text-gray-700 dark:text-gray-300">
               Moderate (70-84)
             </span>
