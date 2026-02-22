@@ -8,7 +8,7 @@ import logging
 from config import settings
 from database import MongoDB
 from models import RouteRequest, RouteResponse
-from services import OSRMService, CrimeService
+from services import MultiRouteService, CrimeService
 
 # Configure logging
 logging.basicConfig(
@@ -58,7 +58,7 @@ app.add_middleware(
 )
 
 # Initialize services
-osrm_service = OSRMService()
+route_service = MultiRouteService()   # queries OSRM + GraphHopper + ORS in parallel
 crime_service = CrimeService()
 
 
@@ -88,7 +88,7 @@ async def get_routes(request: RouteRequest):
         HTTPException: If OSRM request fails or coordinates are invalid
     """
     try:
-        routes = await osrm_service.get_alternative_routes(
+        routes = await route_service.get_alternative_routes(
             source_lat=request.source_lat,
             source_lng=request.source_lng,
             dest_lat=request.dest_lat,
