@@ -399,41 +399,103 @@ function Dashboard() {
 
           {/* Recent Hotspots */}
           <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
-              Recent Crime Hotspots
-            </h3>
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {crimes
-                .sort((a, b) => b.severity_score - a.severity_score)
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                Recent Crime Hotspots
+              </h3>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                Sorted by most recent · top 8
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              The latest reported incidents in Dhaka. Severity shows how serious
+              the crime was —{" "}
+              <span className="text-red-600 font-medium">Critical</span> means
+              immediate danger,{" "}
+              <span className="text-orange-500 font-medium">High</span> is
+              serious,{" "}
+              <span className="text-yellow-500 font-medium">Medium</span> is
+              moderate risk.
+            </p>
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {[...crimes]
+                .sort(
+                  (a, b) =>
+                    new Date(b.date).getTime() - new Date(a.date).getTime(),
+                )
                 .slice(0, 8)
-                .map((crime) => (
-                  <div
-                    key={crime.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                  >
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        {crime.location_name}
+                .map((crime, idx) => {
+                  const severityLabel =
+                    crime.severity_score >= 8
+                      ? "Critical"
+                      : crime.severity_score >= 6
+                        ? "High"
+                        : crime.severity_score >= 4
+                          ? "Medium"
+                          : "Low";
+                  const severityColor =
+                    crime.severity_score >= 8
+                      ? "text-red-600 dark:text-red-400"
+                      : crime.severity_score >= 6
+                        ? "text-orange-500 dark:text-orange-400"
+                        : crime.severity_score >= 4
+                          ? "text-yellow-500 dark:text-yellow-400"
+                          : "text-green-500 dark:text-green-400";
+                  const barColor =
+                    crime.severity_score >= 8
+                      ? "bg-red-500"
+                      : crime.severity_score >= 6
+                        ? "bg-orange-400"
+                        : crime.severity_score >= 4
+                          ? "bg-yellow-400"
+                          : "bg-green-400";
+                  const timeIcon = crime.time_of_day === "Night" ? "🌙" : "☀️";
+                  const formattedDate = new Date(crime.date).toLocaleDateString(
+                    "en-GB",
+                    {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    },
+                  );
+
+                  return (
+                    <div
+                      key={crime.id}
+                      className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      {/* Rank */}
+                      <div className="text-xs font-bold text-gray-400 dark:text-gray-500 w-5 text-center">
+                        #{idx + 1}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {crime.crime_type} • {crime.time_of_day}
+
+                      {/* Main info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900 dark:text-white truncate">
+                          {crime.location_name}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          {crime.crime_type} · {timeIcon} {crime.time_of_day} ·{" "}
+                          {formattedDate}
+                        </div>
+                        {/* Severity bar */}
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <div className="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                            <div
+                              className={`h-1.5 rounded-full ${barColor} transition-all`}
+                              style={{ width: `${crime.severity_score * 10}%` }}
+                            />
+                          </div>
+                          <span
+                            className={`text-xs font-semibold ${severityColor} w-14 text-right`}
+                          >
+                            {severityLabel} {crime.severity_score}/10
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
-                          crime.severity_score >= 8
-                            ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
-                            : crime.severity_score >= 6
-                              ? "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200"
-                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200"
-                        }`}
-                      >
-                        {crime.severity_score}/10
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           </div>
         </>
