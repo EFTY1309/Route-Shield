@@ -26,6 +26,17 @@ class Settings(BaseSettings):
     # OSRM Configuration
     OSRM_BASE_URL: str = "http://router.project-osrm.org"
     OSRM_TIMEOUT: float = 30.0
+
+    # GraphHopper Configuration
+    # Free API key: https://www.graphhopper.com/ (500 req/day)
+    # Leave empty when using a self-hosted instance.
+    GRAPHHOPPER_BASE_URL: str = "https://graphhopper.com/api/1"
+    GRAPHHOPPER_API_KEY: str = "2bfd8414-31c7-4729-97ce-072061aca724"
+
+    # OpenRouteService Configuration
+    # Free API key: https://openrouteservice.org/dev/#/signup (2000 req/day)
+    # Leave empty to skip ORS and rely on OSRM + GraphHopper only.
+    ORS_API_KEY: str = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjU0MTY5YzE5ZDc2ZTRmNTg5ZDc3YWRjN2I2ZGJiYzJmIiwiaCI6Im11cm11cjY0In0="
     
     # Google Maps API Key (optional)
     GOOGLE_MAPS_API_KEY: Optional[str] = "AIzaSyC18Zap4u66Qek3bfphvJvu-jcRQdH2WaQ"
