@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSuggestions } from "../hooks/useSuggestions";
 import { SuggestionDropdown } from "./SuggestionDropdown";
-import { QUICK_LOCATIONS } from "../constants/locations";
+
 import type { LocationSuggestion } from "../services/routeService";
 import type { SafetyPreferences } from "../types/preferences.types";
 import SafetyPreferencesPanel from "./SafetyPreferencesPanel";
@@ -226,33 +226,6 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
           onChange={handlePreferencesChange}
           onReset={handlePreferencesReset}
         />
-
-        {/* Quick Location Buttons */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Quick Locations
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            {QUICK_LOCATIONS.map((location) => (
-              <button
-                key={location.name}
-                type="button"
-                onClick={() => {
-                  if (!origin) {
-                    setOrigin(location.value);
-                    originInput.handleInput(location.value);
-                  } else if (!destination) {
-                    setDestination(location.value);
-                    destInput.handleInput(location.value);
-                  }
-                }}
-                className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900 text-gray-700 dark:text-gray-300 rounded transition-colors"
-              >
-                {location.name}
-              </button>
-            ))}
-          </div>
-        </div>
 
         {/* Search Button */}
         <button
