@@ -24,7 +24,10 @@ interface RouteSearchProps {
 function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
-  const [travelTime, setTravelTime] = useState<"Day" | "Night">("Day");
+  const [travelTime, setTravelTime] = useState<"Day" | "Night">(() => {
+    const hour = new Date().getHours();
+    return hour >= 6 && hour < 18 ? "Day" : "Night";
+  });
   const [preferences, setPreferences] = useState<SafetyPreferences>(() =>
     loadPreferences(),
   );
@@ -88,6 +91,15 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
     setPreferences(defaults);
   };
 
+  const handleSwap = () => {
+    const tempOrigin = origin;
+    const tempOriginCoords = originCoords;
+    setOrigin(destination);
+    setOriginCoords(destCoords);
+    setDestination(tempOrigin);
+    setDestCoords(tempOriginCoords);
+  };
+
   const handleOriginSelect = (suggestion: LocationSuggestion) => {
     setOrigin(suggestion.display_name);
     setOriginCoords({ lat: suggestion.lat, lng: suggestion.lon });
@@ -148,6 +160,20 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
             isOpen={originInput.isOpen}
             onSelect={handleOriginSelect}
           />
+        </div>
+
+        {/* Swap button */}
+        <div className="flex justify-center -my-1">
+          <button
+            type="button"
+            onClick={handleSwap}
+            title="Swap origin and destination"
+            className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900 border border-gray-300 dark:border-gray-600 transition-colors"
+          >
+            <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+          </button>
         </div>
 
         {/* Destination Input */}
@@ -280,42 +306,26 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
           )}
         </button>
 
-        {/* Get Directions Button */}
-        <button
-          type="button"
-          onClick={() => {
-            const originValue = originCoords
-              ? `${originCoords.lat},${originCoords.lng}`
-              : encodeURIComponent(origin);
-            const destValue = destCoords
-              ? `${destCoords.lat},${destCoords.lng}`
-              : encodeURIComponent(destination);
-
-            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originValue}&destination=${destValue}`;
-            window.open(googleMapsUrl, "_blank");
-          }}
-          disabled={!origin.trim() || !destination.trim()}
-          className={`w-full py-2.5 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-            !origin.trim() || !destination.trim()
-              ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg"
-          }`}
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        {/* Fallback link */}
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => {
+              const originValue = originCoords
+                ? `${originCoords.lat},${originCoords.lng}`
+                : encodeURIComponent(origin);
+              const destValue = destCoords
+                ? `${destCoords.lat},${destCoords.lng}`
+                : encodeURIComponent(destination);
+              const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originValue}&destination=${destValue}`;
+              window.open(googleMapsUrl, "_blank");
+            }}
+            disabled={!origin.trim() || !destination.trim()}
+            className="text-xs text-gray-400 dark:text-gray-500 underline hover:text-blue-500 dark:hover:text-blue-400 disabled:no-underline disabled:cursor-not-allowed transition-colors"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-            />
-          </svg>
-          Basic Directions (Google Maps)
-        </button>
+            Skip safety analysis — open in Google Maps directly
+          </button>
+        </div>
       </form>
 
       {/* Info Text */}

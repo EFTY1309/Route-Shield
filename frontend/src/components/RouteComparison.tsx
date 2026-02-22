@@ -71,6 +71,28 @@ function RouteComparison({
     crimes: CrimeData[];
   } | null>(null);
 
+  // Route with the highest safety score gets the "Recommended" banner
+  const bestRouteId =
+    routes.length > 0
+      ? routes.reduce((best, r) =>
+          r.safety_score > best.safety_score ? r : best,
+        ).id
+      : null;
+
+  const getSafetyLabel = (score: number) => {
+    if (score >= 7.5) return { label: "Safe to travel", color: "text-green-600 dark:text-green-400" };
+    if (score >= 5.0) return { label: "Moderate risk", color: "text-orange-600 dark:text-orange-400" };
+    return { label: "High risk — caution advised", color: "text-red-600 dark:text-red-400" };
+  };
+
+  const getSafetyPercentile = (route: RouteData, allRoutes: RouteData[]) => {
+    if (allRoutes.length <= 1) return null;
+    const betterOrEqual = allRoutes.filter(
+      (r) => r.id !== route.id && r.safety_score <= route.safety_score,
+    ).length;
+    return Math.round((betterOrEqual / (allRoutes.length - 1)) * 100);
+  };
+
   const getRiskBadgeColor = (riskLevel: string) => {
     switch (riskLevel) {
       case "Low":
@@ -202,6 +224,15 @@ function RouteComparison({
                 }`}
                 onClick={() => onRouteToggle(route.id)}
               >
+                {/* Recommended banner */}
+                {route.id === bestRouteId && routes.length > 1 && (
+                  <div className="flex items-center gap-1.5 mb-3 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
+                    <span className="text-base">⭐</span>
+                    <span className="text-xs font-semibold text-green-700 dark:text-green-300">
+                      Recommended — Safest option
+                    </span>
+                  </div>
+                )}
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
@@ -286,6 +317,19 @@ function RouteComparison({
                       )}`}
                       style={{ width: `${route.safety_score * 10}%` }}
                     ></div>
+                  </div>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className={`text-xs font-medium ${getSafetyLabel(route.safety_score).color}`}>
+                      {getSafetyLabel(route.safety_score).label}
+                    </span>
+                    {(() => {
+                      const pct = getSafetyPercentile(route, routes);
+                      return pct !== null ? (
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                          Safer than {pct}% of routes shown
+                        </span>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
 

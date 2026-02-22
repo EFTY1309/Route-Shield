@@ -127,6 +127,16 @@ function Dashboard() {
         };
       });
 
+    // Data date range
+    const dates = crimes
+      .map((c) => new Date(c.date).getTime())
+      .filter((t) => !isNaN(t))
+      .sort((a, b) => a - b);
+    const dataRange =
+      dates.length >= 2
+        ? `${new Date(dates[0]).toLocaleDateString("en-GB", { month: "short", year: "numeric" })} – ${new Date(dates[dates.length - 1]).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}`
+        : "All time";
+
     const weeklyAvg = trendData.length
       ? Math.round(
           trendData.reduce((s, d) => s + d.crimes, 0) / trendData.length,
@@ -153,6 +163,7 @@ function Dashboard() {
       trendData,
       weeklyAvg,
       trendDirection,
+      dataRange,
     };
   }, [crimes]);
 
@@ -191,7 +202,7 @@ function Dashboard() {
             <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white shadow-md">
               <div className="text-sm opacity-90">Total Crimes</div>
               <div className="text-3xl font-bold">{crimeStats.total}</div>
-              <div className="text-xs opacity-75 mt-1">Last 7 days</div>
+              <div className="text-xs opacity-75 mt-1">{crimeStats.dataRange}</div>
             </div>
 
             <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 text-white shadow-md">
@@ -364,16 +375,13 @@ function Dashboard() {
             <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
               Crime Type Distribution
             </h3>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={220}>
               <PieChart>
                 <Pie
                   data={crimeStats.crimeTypeData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name}: ${((percent || 0) * 100).toFixed(0)}%`
-                  }
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -392,9 +400,37 @@ function Dashboard() {
                     borderRadius: "8px",
                     color: textColor,
                   }}
+                  formatter={(value: number, name: string) => [
+                    `${value} incidents`,
+                    name,
+                  ]}
                 />
               </PieChart>
             </ResponsiveContainer>
+            {/* Custom legend — avoids overlapping labels inside the chart */}
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2">
+              {crimeStats.crimeTypeData.map((entry, index) => {
+                const total = crimeStats.crimeTypeData.reduce(
+                  (s, d) => s + d.value,
+                  0,
+                );
+                const pct = total ? ((entry.value / total) * 100).toFixed(0) : 0;
+                return (
+                  <div key={entry.name} className="flex items-center gap-1.5">
+                    <span
+                      className="inline-block w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                    />
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                      {entry.name}{" "}
+                      <span className="font-semibold text-gray-800 dark:text-gray-200">
+                        {pct}%
+                      </span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Recent Hotspots */}
