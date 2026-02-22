@@ -202,7 +202,9 @@ function Dashboard() {
             <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white shadow-md">
               <div className="text-sm opacity-90">Total Crimes</div>
               <div className="text-3xl font-bold">{crimeStats.total}</div>
-              <div className="text-xs opacity-75 mt-1">{crimeStats.dataRange}</div>
+              <div className="text-xs opacity-75 mt-1">
+                {crimeStats.dataRange}
+              </div>
             </div>
 
             <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 text-white shadow-md">
@@ -414,7 +416,9 @@ function Dashboard() {
                   (s, d) => s + d.value,
                   0,
                 );
-                const pct = total ? ((entry.value / total) * 100).toFixed(0) : 0;
+                const pct = total
+                  ? ((entry.value / total) * 100).toFixed(0)
+                  : 0;
                 return (
                   <div key={entry.name} className="flex items-center gap-1.5">
                     <span

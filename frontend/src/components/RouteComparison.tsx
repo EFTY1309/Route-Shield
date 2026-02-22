@@ -80,9 +80,20 @@ function RouteComparison({
       : null;
 
   const getSafetyLabel = (score: number) => {
-    if (score >= 7.5) return { label: "Safe to travel", color: "text-green-600 dark:text-green-400" };
-    if (score >= 5.0) return { label: "Moderate risk", color: "text-orange-600 dark:text-orange-400" };
-    return { label: "High risk — caution advised", color: "text-red-600 dark:text-red-400" };
+    if (score >= 7.5)
+      return {
+        label: "Safe to travel",
+        color: "text-green-600 dark:text-green-400",
+      };
+    if (score >= 5.0)
+      return {
+        label: "Moderate risk",
+        color: "text-orange-600 dark:text-orange-400",
+      };
+    return {
+      label: "High risk — caution advised",
+      color: "text-red-600 dark:text-red-400",
+    };
   };
 
   const getSafetyPercentile = (route: RouteData, allRoutes: RouteData[]) => {
@@ -319,7 +330,9 @@ function RouteComparison({
                     ></div>
                   </div>
                   <div className="flex items-center justify-between mt-1">
-                    <span className={`text-xs font-medium ${getSafetyLabel(route.safety_score).color}`}>
+                    <span
+                      className={`text-xs font-medium ${getSafetyLabel(route.safety_score).color}`}
+                    >
                       {getSafetyLabel(route.safety_score).label}
                     </span>
                     {(() => {
