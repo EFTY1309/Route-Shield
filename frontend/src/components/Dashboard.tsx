@@ -105,7 +105,20 @@ function Dashboard() {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, count]) => {
         const [year, month, day] = date.split("-");
-        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
         const label = `${monthNames[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
         return {
           week: `${monthNames[parseInt(month) - 1]} ${parseInt(day)}`,
@@ -115,14 +128,20 @@ function Dashboard() {
       });
 
     const weeklyAvg = trendData.length
-      ? Math.round(trendData.reduce((s, d) => s + d.crimes, 0) / trendData.length)
+      ? Math.round(
+          trendData.reduce((s, d) => s + d.crimes, 0) / trendData.length,
+        )
       : 0;
 
     // Trend direction: compare last 4 weeks vs previous 4 weeks
     const recent = trendData.slice(-4).reduce((s, d) => s + d.crimes, 0);
     const previous = trendData.slice(-8, -4).reduce((s, d) => s + d.crimes, 0);
     const trendDirection: "rising" | "falling" | "stable" =
-      recent > previous + 2 ? "rising" : recent < previous - 2 ? "falling" : "stable";
+      recent > previous + 2
+        ? "rising"
+        : recent < previous - 2
+          ? "falling"
+          : "stable";
 
     return {
       total: crimes.length,
@@ -211,18 +230,32 @@ function Dashboard() {
                       : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
                 }`}
               >
-                {crimeStats.trendDirection === "rising" ? "▲ Crime Rising" :
-                 crimeStats.trendDirection === "falling" ? "▼ Getting Safer" :
-                 "→ Stable"}
+                {crimeStats.trendDirection === "rising"
+                  ? "▲ Crime Rising"
+                  : crimeStats.trendDirection === "falling"
+                    ? "▼ Getting Safer"
+                    : "→ Stable"}
               </span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-              Number of crimes reported each week. The <span className="font-medium text-orange-500">dashed line</span> shows the weekly average ({crimeStats.weeklyAvg} crimes). Weeks above it were more dangerous than usual.
+              Number of crimes reported each week. The{" "}
+              <span className="font-medium text-orange-500">dashed line</span>{" "}
+              shows the weekly average ({crimeStats.weeklyAvg} crimes). Weeks
+              above it were more dangerous than usual.
             </p>
             <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={crimeStats.trendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <AreaChart
+                data={crimeStats.trendData}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              >
                 <defs>
-                  <linearGradient id="crimeGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="crimeGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop offset="5%" stopColor="#ef4444" stopOpacity={0.35} />
                     <stop offset="95%" stopColor="#ef4444" stopOpacity={0.02} />
                   </linearGradient>
@@ -281,13 +314,24 @@ function Dashboard() {
                   strokeWidth={2.5}
                   fill="url(#crimeGradient)"
                   dot={{ fill: "#ef4444", r: 3, strokeWidth: 0 }}
-                  activeDot={{ r: 6, stroke: "#ef4444", strokeWidth: 2, fill: "#fff" }}
+                  activeDot={{
+                    r: 6,
+                    stroke: "#ef4444",
+                    strokeWidth: 2,
+                    fill: "#fff",
+                  }}
                 />
               </AreaChart>
             </ResponsiveContainer>
             <div className="flex items-center gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
-              <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-red-400"></span> Weekly crimes</span>
-              <span className="flex items-center gap-1"><span className="inline-block w-4 border-t-2 border-dashed border-orange-400"></span> Weekly average</span>
+              <span className="flex items-center gap-1">
+                <span className="inline-block w-3 h-3 rounded-full bg-red-400"></span>{" "}
+                Weekly crimes
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="inline-block w-4 border-t-2 border-dashed border-orange-400"></span>{" "}
+                Weekly average
+              </span>
             </div>
           </div>
 
