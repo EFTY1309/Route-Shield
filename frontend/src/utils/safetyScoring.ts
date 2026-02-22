@@ -255,15 +255,33 @@ export function calculateRouteSafetyScore(
   // Base score starts at 100
   let safetyScore = 100;
 
-  // Deduct points based on total risk
-  // Average risk per crime * number of crimes
-  const avgRiskPerCrime = crimesNearRoute > 0 ? totalRiskScore / crimesNearRoute : 0;
-  const riskPenalty = Math.min(avgRiskPerCrime * crimesNearRoute * 0.5, 80); // Max 80 point penalty
+  if (crimesNearRoute > 0) {
+    // --- Component 1: Severity-weighted average ---
+    // Average risk per crime (already weighted by type, time, distance, severity).
+    // Represents QUALITY of danger, not quantity.
+    const avgRiskPerCrime = totalRiskScore / crimesNearRoute; // 0 – ~40 typical range
 
-  safetyScore = Math.max(0, safetyScore - riskPenalty);
+    // Normalise to 0–1 (cap at 40 which represents multiple murder-at-night-on-route scenarios)
+    const avgRiskNorm = Math.min(avgRiskPerCrime / 40, 1);
 
-  // Additional penalty for high-risk segments
-  const highRiskPenalty = highRiskSegments.length * 5; // 5 points per high-risk segment
+    // --- Component 2: Crime density (log-scaled) ---
+    // log scaling prevents 30 minor pickpockets from dominating the score over
+    // 2 murders. ln(1+n) grows fast at first then flattens: ln(2)=0.7, ln(11)=2.4, ln(31)=3.4
+    // Normalise so that ~20 crimes ≈ 0.6, ~50 crimes ≈ 0.8
+    const densityNorm = Math.min(Math.log(1 + crimesNearRoute) / 4, 1);
+
+    // --- Combine: weighted blend ---
+    // Severity (crime quality) weight = 70%, density (crime count) weight = 30%
+    // A single murder near the route should matter far more than 30 pickpockets.
+    const combinedRisk = 0.70 * avgRiskNorm + 0.30 * densityNorm;
+
+    // Max deduction is 85 points (so worst-case score is 1.5/10, never 0)
+    const riskPenalty = combinedRisk * 85;
+    safetyScore = Math.max(0, safetyScore - riskPenalty);
+  }
+
+  // Additional penalty for high-risk segments (3+ crimes clustered on one segment)
+  const highRiskPenalty = highRiskSegments.length * 3; // 3 points per high-risk segment
   safetyScore = Math.max(0, safetyScore - highRiskPenalty);
 
   // Convert to 0-10 scale (1 decimal place)
