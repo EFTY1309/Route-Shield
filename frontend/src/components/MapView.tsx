@@ -227,9 +227,6 @@ function MapView({
                   </h3>
                   <p className="text-gray-700">{crime.location_name}</p>
                   <p className="text-gray-600">Time: {crime.time_of_day}</p>
-                  <p className="text-gray-600">
-                    Severity: {crime.severity_score}/10
-                  </p>
                   <p className="text-gray-500 text-xs">{crime.date}</p>
                 </div>
               </Popup>
