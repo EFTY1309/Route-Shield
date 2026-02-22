@@ -314,7 +314,7 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
               d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
             />
           </svg>
-          Get Directions on Google Maps
+          Basic Directions (Google Maps)
         </button>
       </form>
 
@@ -322,8 +322,9 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
       <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
         <p className="text-xs text-blue-700 dark:text-blue-300">
           💡 <strong>How it works:</strong> Enter your origin and destination.
-          We'll fetch multiple route options from Google Maps Direction API and
-          calculate safety scores based on crime heatmap data along each route.
+          We'll fetch multiple route options and calculate safety scores based
+          on crime data. Use <strong>"Navigate via this Route"</strong> on each
+          route card to follow that exact safe route in Google Maps.
         </p>
       </div>
 

@@ -2,6 +2,55 @@ import { useState } from "react";
 import type { RouteData } from "../types/route.types";
 import type { CrimeData } from "../data/dummyCrimes";
 
+/**
+ * Builds a Google Maps navigation URL that follows the exact route
+ * by injecting sampled waypoints from the route's coordinates.
+ * Google Maps will navigate along these waypoints in order.
+ */
+function buildGoogleMapsNavUrl(
+  coordinates: { lat: number; lng: number }[],
+): string {
+  if (coordinates.length < 2) return "";
+
+  const origin = coordinates[0];
+  const destination = coordinates[coordinates.length - 1];
+
+  // Sample up to 8 intermediate waypoints evenly from the middle coordinates.
+  // Google Maps free tier supports up to 8 waypoints; staying at 8 keeps the
+  // URL short enough for all browsers (< 2000 chars).
+  const middle = coordinates.slice(1, -1);
+  const MAX_WP = 8;
+  let waypoints: { lat: number; lng: number }[] = [];
+
+  if (middle.length > 0) {
+    if (middle.length <= MAX_WP) {
+      waypoints = middle;
+    } else {
+      // Evenly-spaced indices across the middle array
+      for (let i = 0; i < MAX_WP; i++) {
+        const idx = Math.round((i / (MAX_WP - 1)) * (middle.length - 1));
+        waypoints.push(middle[idx]);
+      }
+    }
+  }
+
+  const originStr = `${origin.lat},${origin.lng}`;
+  const destStr = `${destination.lat},${destination.lng}`;
+
+  let url =
+    `https://www.google.com/maps/dir/?api=1` +
+    `&origin=${originStr}` +
+    `&destination=${destStr}` +
+    `&travelmode=driving`;
+
+  if (waypoints.length > 0) {
+    const wpStr = waypoints.map((w) => `${w.lat},${w.lng}`).join("|");
+    url += `&waypoints=${encodeURIComponent(wpStr)}`;
+  }
+
+  return url;
+}
+
 interface RouteComparisonProps {
   selectedRoutes: number[];
   onRouteToggle: (routeId: number) => void;
@@ -264,6 +313,39 @@ function RouteComparison({
                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   {route.description}
                 </p>
+
+                {/* Navigate Button */}
+                {route.coordinates && route.coordinates.length >= 2 && (
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const url = buildGoogleMapsNavUrl(route.coordinates);
+                        if (url) window.open(url, "_blank");
+                      }}
+                      className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md ${
+                        route.risk_level === "Low"
+                          ? "bg-green-500 hover:bg-green-600 text-white"
+                          : route.risk_level === "Medium"
+                            ? "bg-orange-500 hover:bg-orange-600 text-white"
+                            : "bg-red-500 hover:bg-red-600 text-white"
+                      }`}
+                    >
+                      {/* Google Maps pin icon */}
+                      <svg
+                        className="w-4 h-4 flex-shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                      </svg>
+                      Navigate via this Route in Google Maps
+                    </button>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-1.5">
+                      Opens Google Maps with waypoints from this exact route
+                    </p>
+                  </div>
+                )}
 
                 {/* Action Hint */}
                 {isSelected && (
