@@ -40,6 +40,44 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
     lng: string;
   } | null>(null);
 
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser.");
+      return;
+    }
+    setIsLocating(true);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setOriginCoords({ lat: String(latitude), lng: String(longitude) });
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+            { headers: { "Accept-Language": "en" } },
+          );
+          const data = await res.json();
+          setOrigin(data.display_name ?? `${latitude}, ${longitude}`);
+        } catch {
+          setOrigin(`${latitude}, ${longitude}`);
+        }
+        setIsLocating(false);
+      },
+      (err) => {
+        setLocationError(
+          err.code === 1
+            ? "Location access denied. Please allow location permission."
+            : "Unable to retrieve your location.",
+        );
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
+
   const originInput = useSuggestions();
   const destInput = useSuggestions();
 
@@ -140,9 +178,65 @@ function RouteSearch({ onSearch, isSearching = false }: RouteSearchProps) {
       <form onSubmit={handleSearch} className="space-y-3">
         {/* Origin Input */}
         <div ref={originRef} className="relative">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            From (Origin)
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              From (Origin)
+            </label>
+            <button
+              type="button"
+              onClick={handleUseMyLocation}
+              disabled={isLocating}
+              className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isLocating ? (
+                <svg
+                  className="animate-spin h-3.5 w-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              )}
+              {isLocating ? "Locating..." : "Use my location"}
+            </button>
+          </div>
+          {locationError && (
+            <p className="text-xs text-red-500 dark:text-red-400 mb-1">
+              {locationError}
+            </p>
+          )}
           <input
             type="text"
             value={origin}
