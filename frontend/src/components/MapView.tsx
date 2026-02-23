@@ -38,6 +38,7 @@ interface MapViewProps {
   origin?: string;
   destination?: string;
   travelTime?: "Day" | "Night";
+  highlightedCrimes?: CrimeData[] | null;
 }
 
 // Component to auto-fit map bounds when routes change
@@ -102,6 +103,7 @@ function MapView({
   origin,
   destination,
   travelTime = "Day",
+  highlightedCrimes,
 }: MapViewProps) {
   const { theme } = useTheme();
   const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
@@ -254,6 +256,8 @@ function MapView({
             </Marker>
           ))}
 
+        {/* Highlighted crimes from "See Crimes" — shown regardless of time filter */}
+
         {/* Auto-fit bounds when routes change */}
         <MapBoundsFitter routes={routes} />
 
@@ -329,6 +333,66 @@ function MapView({
             </Popup>
           </Marker>
         )}
+
+        {/* Highlighted crimes from "See Crimes" — rendered last so they appear on top */}
+        {highlightedCrimes &&
+          highlightedCrimes.map((crime: CrimeData) => (
+            <CircleMarker
+              key={`highlight-outer-${crime.id}`}
+              center={[crime.lat, crime.lng]}
+              radius={16}
+              pathOptions={{
+                fillColor: "#7c3aed",
+                color: "#7c3aed",
+                weight: 2,
+                opacity: 0.5,
+                fillOpacity: 0.2,
+              }}
+            />
+          ))}
+        {highlightedCrimes &&
+          highlightedCrimes.map((crime: CrimeData) => (
+            <CircleMarker
+              key={`highlight-inner-${crime.id}`}
+              center={[crime.lat, crime.lng]}
+              radius={9}
+              pathOptions={{
+                fillColor:
+                  crime.severity_score >= 8
+                    ? "#dc2626"
+                    : crime.severity_score >= 6
+                      ? "#f97316"
+                      : "#fbbf24",
+                color: "#7c3aed",
+                weight: 2.5,
+                opacity: 1,
+                fillOpacity: 0.95,
+              }}
+            >
+              <Popup>
+                <div className="text-sm">
+                  <h3 className="font-bold text-purple-700">
+                    ⚠️ {crime.crime_type}
+                  </h3>
+                  <p className="text-gray-700">{crime.location_name}</p>
+                  <p className="text-gray-600">
+                    Time:{" "}
+                    {crime.time_of_day === "Night" ? "🌙 Night" : "☀️ Day"}
+                  </p>
+                  <p className="text-gray-600">
+                    Severity: {crime.severity_score}/10
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    {new Date(crime.date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
+              </Popup>
+            </CircleMarker>
+          ))}
       </MapContainer>
 
       {/* Legend */}
@@ -381,6 +445,31 @@ function MapView({
                 <span className="text-gray-700 dark:text-gray-300">
                   Police Station
                 </span>
+              </div>
+            </>
+          )}
+          {highlightedCrimes && highlightedCrimes.length > 0 && (
+            <>
+              <hr className="my-1 border-gray-300 dark:border-gray-600" />
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-purple-600 ring-2 ring-purple-400"></div>
+                  <span className="text-purple-700 dark:text-purple-300 font-medium">
+                    Route crimes ({highlightedCrimes.length})
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    // Dispatch a custom event to clear highlights from App
+                    window.dispatchEvent(
+                      new CustomEvent("clearHighlightedCrimes"),
+                    );
+                  }}
+                  className="text-gray-400 hover:text-red-500 transition-colors ml-1"
+                  title="Clear highlights"
+                >
+                  ✕
+                </button>
               </div>
             </>
           )}

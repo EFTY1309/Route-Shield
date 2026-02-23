@@ -57,6 +57,7 @@ interface RouteComparisonProps {
   routes: RouteData[];
   isLoading?: boolean;
   error?: string | null;
+  onHighlightCrimes?: (crimes: CrimeData[] | null) => void;
 }
 
 function RouteComparison({
@@ -65,6 +66,7 @@ function RouteComparison({
   routes,
   isLoading = false,
   error = null,
+  onHighlightCrimes,
 }: RouteComparisonProps) {
   const [crimeModal, setCrimeModal] = useState<{
     routeName: string;
@@ -265,10 +267,12 @@ function RouteComparison({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            const crimes = route.nearby_crimes ?? [];
                             setCrimeModal({
                               routeName: route.name,
-                              crimes: route.nearby_crimes ?? [],
+                              crimes,
                             });
+                            onHighlightCrimes?.(crimes);
                           }}
                           className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800 border border-red-300 dark:border-red-700 transition-colors shadow-sm"
                         >
@@ -422,7 +426,9 @@ function RouteComparison({
       {crimeModal && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          onClick={() => setCrimeModal(null)}
+          onClick={() => {
+            setCrimeModal(null);
+          }}
         >
           <div
             className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col"
@@ -439,7 +445,9 @@ function RouteComparison({
                 </p>
               </div>
               <button
-                onClick={() => setCrimeModal(null)}
+                onClick={() => {
+                  setCrimeModal(null);
+                }}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 aria-label="Close modal"
               >
@@ -543,10 +551,12 @@ function RouteComparison({
             {/* Modal Footer */}
             <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700">
               <button
-                onClick={() => setCrimeModal(null)}
+                onClick={() => {
+                  setCrimeModal(null);
+                }}
                 className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
               >
-                Close
+                Close & View on Map
               </button>
             </div>
           </div>

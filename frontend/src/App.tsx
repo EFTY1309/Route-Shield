@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import MapView from "./components/MapView";
@@ -8,6 +8,8 @@ import RouteSearch from "./components/RouteSearch";
 import type { RouteData } from "./types/route.types";
 import type { SafetyPreferences } from "./types/preferences.types";
 import { fetchRouteAlternatives } from "./services/routeService";
+
+import type { CrimeData } from "./data/dummyCrimes";
 
 function AppContent() {
   const { theme, toggleTheme } = useTheme();
@@ -23,6 +25,16 @@ function AppContent() {
   const [currentTravelTime, setCurrentTravelTime] = useState<"Day" | "Night">(
     "Day",
   );
+  const [highlightedCrimes, setHighlightedCrimes] = useState<
+    CrimeData[] | null
+  >(null);
+
+  // Listen for clear-highlights event dispatched from MapView legend
+  useEffect(() => {
+    const handler = () => setHighlightedCrimes(null);
+    window.addEventListener("clearHighlightedCrimes", handler);
+    return () => window.removeEventListener("clearHighlightedCrimes", handler);
+  }, []);
 
   const handleRouteToggle = (routeId: number) => {
     setSelectedRoutes((prev) =>
@@ -54,6 +66,7 @@ function AppContent() {
     setSearchedOrigin(origin);
     setSearchedDestination(destination);
     setCurrentTravelTime(travelTime);
+    setHighlightedCrimes(null); // clear any previous highlights on new search
 
     try {
       // Fetch routes from backend API (no API key needed - handled by backend)
@@ -199,6 +212,7 @@ function AppContent() {
               origin={searchedOrigin}
               destination={searchedDestination}
               travelTime={currentTravelTime}
+              highlightedCrimes={highlightedCrimes}
             />
           </div>
 
@@ -243,6 +257,10 @@ function AppContent() {
                       routes={routes}
                       isLoading={isLoadingRoutes}
                       error={routeError}
+                      onHighlightCrimes={(crimes) => {
+                        setHighlightedCrimes(crimes);
+                        if (crimes && crimes.length > 0) setShowHeatmap(true);
+                      }}
                     />
                   </div>
                 </>
