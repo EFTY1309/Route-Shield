@@ -42,7 +42,10 @@ class Settings(BaseSettings):
     GOOGLE_MAPS_API_KEY: Optional[str] = "AIzaSyC18Zap4u66Qek3bfphvJvu-jcRQdH2WaQ"
     
     # CORS Configuration
-    ALLOWED_ORIGINS: list = ["*"]  # In production, specify your frontend URL
+    # Set ALLOWED_ORIGINS env var to a comma-separated list of allowed origins,
+    # e.g. "https://your-app.vercel.app,https://www.your-domain.com"
+    # Defaults to ["*"] (allow all) — safe because allow_credentials is False.
+    ALLOWED_ORIGINS: list = ["*"]
     
     class Config:
         env_file = ".env"
