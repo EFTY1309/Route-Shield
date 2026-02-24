@@ -1,0 +1,151 @@
+<mxGraphModel dx="1422" dy="762" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1350" pageHeight="540" math="0" shadow="0" background="none">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- ============================================================ -->
+    <!-- TOP ROW: Start → 5 process boxes                            -->
+    <!-- ============================================================ -->
+
+    <!-- START oval -->
+    <mxCell id="10" value="Start"
+      style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#374151;strokeWidth=2;fontSize=12;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="30" y="120" width="110" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- Box 1: Load Route Geometry (parallelogram = data input) -->
+    <mxCell id="11" value="Load Route&lt;br/&gt;Geometry.&lt;br/&gt;Decoded polyline&lt;br/&gt;segments."
+      style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;align=center;fontSize=11;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="175" y="105" width="160" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- Box 2: Load Crime Records -->
+    <mxCell id="12" value="Load Crime Records.&lt;br/&gt;MongoDB $near&lt;br/&gt;geospatial query&lt;br/&gt;for nearby crimes."
+      style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;align=center;fontSize=11;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="370" y="105" width="160" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- Box 3: Compute Min Distance -->
+    <mxCell id="13" value="For Each Crime:&lt;br/&gt;Compute Min&lt;br/&gt;Perpendicular Distance.&lt;br/&gt;Haversine + Projection."
+      style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;align=center;fontSize=11;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="565" y="105" width="160" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- Box 4: Filter 500m -->
+    <mxCell id="14" value="Filter Proximate&lt;br/&gt;Crimes.&lt;br/&gt;Threshold:&lt;br/&gt;500 m radius."
+      style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;align=center;fontSize=11;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="760" y="105" width="170" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- Box 5: 6-Factor Risk Formula -->
+    <mxCell id="15" value="Apply 6-Factor&lt;br/&gt;Risk Formula.&lt;br/&gt;risk = df×sf×tf×&lt;br/&gt;wtype×wc×wtol×10"
+      style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;align=center;fontSize=11;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="965" y="105" width="170" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- ============================================================ -->
+    <!-- BOTTOM ROW: 5 process boxes → End                           -->
+    <!-- ============================================================ -->
+
+    <!-- Box 6: avgRiskNorm -->
+    <mxCell id="20" value="Compute&lt;br/&gt;avgRiskNorm.&lt;br/&gt;Average risk quality.&lt;br/&gt;Weight: 70%."
+      style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;align=center;fontSize=11;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="965" y="295" width="170" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- Box 7: densityNorm -->
+    <mxCell id="21" value="Compute&lt;br/&gt;densityNorm.&lt;br/&gt;Log-scaled: ln(1+N)/4.&lt;br/&gt;Weight: 30%."
+      style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;align=center;fontSize=11;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="760" y="295" width="170" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- Box 8: 70/30 Blend -->
+    <mxCell id="22" value="Blend 70 / 30.&lt;br/&gt;combinedRisk =&lt;br/&gt;0.70×avgNorm +&lt;br/&gt;0.30×densNorm."
+      style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;align=center;fontSize=11;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="565" y="295" width="160" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- Box 9: Final Score -->
+    <mxCell id="23" value="Calculate Safety&lt;br/&gt;Score (0 – 10).&lt;br/&gt;score = (100 - risk×85&lt;br/&gt;- 3×Nhigh) / 10"
+      style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;align=center;fontSize=11;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="370" y="295" width="160" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- Box 10: Classify Risk Level -->
+    <mxCell id="24" value="Classify Risk Level.&lt;br/&gt;Low  ≥ 7.5&lt;br/&gt;Medium ≥ 5.0&lt;br/&gt;High &lt; 5.0"
+      style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;align=center;fontSize=11;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="175" y="295" width="160" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- END oval -->
+    <mxCell id="25" value="End"
+      style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#374151;strokeWidth=2;fontSize=12;fontStyle=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="30" y="310" width="110" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- ============================================================ -->
+    <!-- ARROWS — TOP ROW                                            -->
+    <!-- ============================================================ -->
+    <mxCell id="30" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="10" target="11">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="31" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="11" target="12">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="32" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="12" target="13">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="33" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="13" target="14">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="34" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="14" target="15">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- VERTICAL: Box 5 → Box 6 -->
+    <mxCell id="35" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="15" target="20">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ============================================================ -->
+    <!-- ARROWS — BOTTOM ROW                                         -->
+    <!-- ============================================================ -->
+    <mxCell id="36" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="20" target="21">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="37" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="21" target="22">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="38" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="22" target="23">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="39" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="23" target="24">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="40" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="24" target="25">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ============================================================ -->
+    <!-- CAPTION                                                      -->
+    <!-- ============================================================ -->
+    <mxCell id="99" value="Figure 5. Safety Scoring Algorithm Flowchart — From Route Geometry and Crime Data Through 6-Factor Risk Multiplication to Final Safety Score and Risk Level"
+      style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=13;fontStyle=1;fontColor=#1a1a2e;"
+      vertex="1" parent="1">
+      <mxGeometry x="30" y="460" width="1280" height="36" as="geometry" />
+    </mxCell>
+
+  </root>
+</mxGraphModel>
