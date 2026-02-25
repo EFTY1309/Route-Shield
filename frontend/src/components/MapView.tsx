@@ -197,30 +197,30 @@ function MapView({
           filteredCrimes.map((crime: CrimeData) => {
             const matchesTime = crime.time_of_day === travelTime;
             return (
-            <CircleMarker
-              key={crime.id}
-              center={[crime.lat, crime.lng]}
-              radius={getCrimeRadius(crime.severity_score)}
-              pathOptions={{
-                fillColor: getCrimeColor(crime.severity_score),
-                color: getCrimeColor(crime.severity_score),
-                weight: 1,
-                opacity: matchesTime ? 0.8 : 0.3,
-                fillOpacity: matchesTime ? 0.55 : 0.15,
-              }}
-            >
-              <Popup>
-                <div className="text-sm">
-                  <h3 className="font-bold text-gray-900">
-                    {crime.crime_type}
-                  </h3>
-                  <p className="text-gray-700">{crime.location_name}</p>
-                  <p className="text-gray-600">Time: {crime.time_of_day}</p>
-                  <p className="text-gray-500 text-xs">{crime.date}</p>
-                </div>
-              </Popup>
-            </CircleMarker>
-          );
+              <CircleMarker
+                key={crime.id}
+                center={[crime.lat, crime.lng]}
+                radius={getCrimeRadius(crime.severity_score)}
+                pathOptions={{
+                  fillColor: getCrimeColor(crime.severity_score),
+                  color: getCrimeColor(crime.severity_score),
+                  weight: 1,
+                  opacity: matchesTime ? 0.8 : 0.3,
+                  fillOpacity: matchesTime ? 0.55 : 0.15,
+                }}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <h3 className="font-bold text-gray-900">
+                      {crime.crime_type}
+                    </h3>
+                    <p className="text-gray-700">{crime.location_name}</p>
+                    <p className="text-gray-600">Time: {crime.time_of_day}</p>
+                    <p className="text-gray-500 text-xs">{crime.date}</p>
+                  </div>
+                </Popup>
+              </CircleMarker>
+            );
           })}
 
         {/* Police Station Markers */}
