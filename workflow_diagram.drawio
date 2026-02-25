@@ -1,455 +1,77 @@
-<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="2640" math="0" shadow="0">
+<mxfile host="app.diagrams.net" version="29.5.2">
+  <diagram id="route-shield-wf" name="Route Shield Workflow">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="2640" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-
-        <!-- ============================================================ -->
-        <!-- SECTION BACKGROUND PANELS                                    -->
-        <!-- ============================================================ -->
-
-        <!-- INPUT bg -->
-        <mxCell id="bg_input" value=""
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;opacity=25;fontSize=1;pointerEvents=0;"
-          vertex="1" parent="1">
-          <mxGeometry x="30" y="60" width="1040" height="680" as="geometry" />
-        </mxCell>
-
-        <!-- PROCESSING bg -->
-        <mxCell id="bg_proc" value=""
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;opacity=25;fontSize=1;pointerEvents=0;"
-          vertex="1" parent="1">
-          <mxGeometry x="30" y="755" width="1040" height="1165" as="geometry" />
-        </mxCell>
-
-        <!-- OUTPUT bg -->
-        <mxCell id="bg_out" value=""
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;opacity=25;fontSize=1;pointerEvents=0;"
-          vertex="1" parent="1">
-          <mxGeometry x="30" y="1935" width="1040" height="595" as="geometry" />
-        </mxCell>
-
-        <!-- ============================================================ -->
-        <!-- SECTION LABELS                                               -->
-        <!-- ============================================================ -->
-
-        <mxCell id="lbl_input" value="1  ·  INPUT"
-          style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;fontColor=#1d4ed8;"
-          vertex="1" parent="1">
-          <mxGeometry x="45" y="65" width="200" height="28" as="geometry" />
-        </mxCell>
-
-        <mxCell id="lbl_proc" value="2  ·  PROCESSING"
-          style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;fontColor=#d97706;"
-          vertex="1" parent="1">
-          <mxGeometry x="45" y="760" width="260" height="28" as="geometry" />
-        </mxCell>
-
-        <mxCell id="lbl_out" value="3  ·  OUTPUT"
-          style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;fontColor=#16a34a;"
-          vertex="1" parent="1">
-          <mxGeometry x="45" y="1940" width="200" height="28" as="geometry" />
-        </mxCell>
-
-        <!-- ============================================================ -->
-        <!-- START                                                        -->
-        <!-- ============================================================ -->
-
-        <mxCell id="start" value="Start"
-          style="ellipse;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#374151;strokeWidth=2;fontSize=13;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="475" y="8" width="100" height="44" as="geometry" />
-        </mxCell>
-
-        <!-- ============================================================ -->
-        <!-- INPUT — NODES                                                -->
-        <!-- ============================================================ -->
-
-        <!-- 1: User enters origin & destination -->
-        <mxCell id="in1" value="User Enters Origin &amp; Destination"
-          style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;fontSize=12;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="100" width="244" height="60" as="geometry" />
-        </mxCell>
-
-        <!-- 2: Nominatim autocomplete -->
-        <mxCell id="in2" value="Live Nominatim Autocomplete Suggestions&lt;br/&gt;(Filtered to Dhaka, Bangladesh)"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;fontSize=11;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="210" width="244" height="60" as="geometry" />
-        </mxCell>
-
-        <!-- 3: Address geocoded -->
-        <mxCell id="in3" value="Origin &amp; Destination Geocoded to Lat / Long"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cffafe;strokeColor=#0891b2;strokeWidth=1.5;fontSize=11;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="320" width="244" height="55" as="geometry" />
-        </mxCell>
-
-        <!-- 4: Select travel time -->
-        <mxCell id="in4" value="Select Travel Time — Day or Night"
-          style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="425" width="244" height="60" as="geometry" />
-        </mxCell>
-
-        <!-- 5: Safety preferences -->
-        <mxCell id="in5" value="Configure Safety Preferences&lt;br/&gt;Risk Tolerance: Cautious / Balanced / Time-Focused&lt;br/&gt;Crime-Type Concern Weights  0.5 – 2.0"
-          style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="540" width="244" height="78" as="geometry" />
-        </mxCell>
-
-        <!-- 6: Click Find Safe Routes -->
-        <mxCell id="in6" value="▶  Click  Find Safe Routes"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#ca8a04;strokeWidth=2;fontSize=12;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="390" y="680" width="220" height="48" as="geometry" />
-        </mxCell>
-
-        <!-- ============================================================ -->
-        <!-- PROCESSING — PARALLEL ROUTING                                -->
-        <!-- ============================================================ -->
-
-        <!-- Fork bar -->
-        <mxCell id="fork" value=""
-          style="fillColor=#374151;strokeColor=#374151;"
-          vertex="1" parent="1">
-          <mxGeometry x="95" y="798" width="840" height="10" as="geometry" />
-        </mxCell>
-
-        <!-- Label: Parallel Route Fetch -->
-        <mxCell id="lbl_parallel" value="Parallel Route Fetch (all three called simultaneously; failures return empty list)"
-          style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=2;fontColor=#6b7280;"
-          vertex="1" parent="1">
-          <mxGeometry x="95" y="808" width="840" height="18" as="geometry" />
-        </mxCell>
-
-        <!-- OSRM -->
-        <mxCell id="p_osrm" value="OSRM&lt;br/&gt;Open Source Routing Machine&lt;br/&gt;(OSM-based, no key required)"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;"
-          vertex="1" parent="1">
-          <mxGeometry x="95" y="836" width="200" height="70" as="geometry" />
-        </mxCell>
-
-        <!-- GraphHopper -->
-        <mxCell id="p_gh" value="GraphHopper&lt;br/&gt;Graph-based Engine&lt;br/&gt;500 free requests / day"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;"
-          vertex="1" parent="1">
-          <mxGeometry x="405" y="836" width="200" height="70" as="geometry" />
-        </mxCell>
-
-        <!-- ORS -->
-        <mxCell id="p_ors" value="OpenRouteService (ORS)&lt;br/&gt;Feature-rich Engine&lt;br/&gt;2 000 free requests / day"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;"
-          vertex="1" parent="1">
-          <mxGeometry x="730" y="836" width="200" height="70" as="geometry" />
-        </mxCell>
-
-        <!-- Join bar -->
-        <mxCell id="join" value=""
-          style="fillColor=#374151;strokeColor=#374151;"
-          vertex="1" parent="1">
-          <mxGeometry x="95" y="926" width="840" height="10" as="geometry" />
-        </mxCell>
-
-        <!-- 7: Merge all routes -->
-        <mxCell id="p1" value="Merge All Routes into Single List"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="990" width="244" height="55" as="geometry" />
-        </mxCell>
-
-        <!-- 8: Sort by duration -->
-        <mxCell id="p2" value="Sort by Duration — Fastest First"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="1100" width="244" height="55" as="geometry" />
-        </mxCell>
-
-        <!-- 9: Deduplicate -->
-        <mxCell id="p3" value="Deduplicate Routes&lt;br/&gt;Drop Near-Clones: Dual-ratio ≤ 8%&lt;br/&gt;(AND on Duration AND Distance)"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="1210" width="244" height="70" as="geometry" />
-        </mxCell>
-
-        <!-- 10: Crime query from MongoDB -->
-        <mxCell id="p4" value="Query MongoDB Crime Data ($near)&lt;br/&gt;≤ 500 m Radius per Route Segment&lt;br/&gt;2dsphere Index · Day / Night Filter"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cffafe;strokeColor=#0891b2;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="1340" width="244" height="75" as="geometry" />
-        </mxCell>
-
-        <!-- 11: Time filter -->
-        <mxCell id="p5" value="Apply Day / Night Crime Time Filter&lt;br/&gt;Matching time t_f = 2.0 ×  ·  Other t_f = 0.5 ×"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="1475" width="244" height="65" as="geometry" />
-        </mxCell>
-
-        <!-- 12: 6-factor risk -->
-        <mxCell id="p6" value="Compute 6-Factor Risk per Crime&lt;br/&gt;risk = d_f × s_f × t_f × w_type × w_concern × w_tol × 10&lt;br/&gt;(Haversine + Point-to-Segment Projection)"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="1600" width="244" height="80" as="geometry" />
-        </mxCell>
-
-        <!-- 13: Blend + safety score -->
-        <mxCell id="p7" value="Blend 70 % Severity + 30 % Log-Density&lt;br/&gt;safetyScore = (100 − combinedRisk×85 − 3×N_highRisk) / 10&lt;br/&gt;Low ≥ 7.5  ·  Medium ≥ 5.0  ·  High &lt; 5.0"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="1745" width="244" height="80" as="geometry" />
-        </mxCell>
-
-        <!-- 14: Re-index & rank -->
-        <mxCell id="p8" value="Re-index &amp; Rank Routes by Safety Score&lt;br/&gt;Tag Safest Route as  ★ Recommended"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="1885" width="244" height="60" as="geometry" />
-        </mxCell>
-
-        <!-- ============================================================ -->
-        <!-- OUTPUT — NODES                                               -->
-        <!-- ============================================================ -->
-
-        <!-- 15: Map display -->
-        <mxCell id="o1" value="Display Routes on Map (Leaflet.js)&lt;br/&gt;Colour-coded Polylines · Crime Heatmap&lt;br/&gt;High-risk Segment Highlights · Legend"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="1975" width="244" height="75" as="geometry" />
-        </mxCell>
-
-        <!-- 16: Route comparison cards -->
-        <mxCell id="o2" value="Show Route Comparison Cards&lt;br/&gt;Safety Score Badge · Risk Label · Distance&lt;br/&gt;Duration · Nearby Crime Count"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="378" y="2110" width="244" height="75" as="geometry" />
-        </mxCell>
-
-        <!-- 17: View Crimes? decision -->
-        <mxCell id="d1" value="View Crimes?"
-          style="rhombus;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#db2777;strokeWidth=2;fontSize=12;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="405" y="2250" width="190" height="65" as="geometry" />
-        </mxCell>
-
-        <!-- Crime modal (YES branch) -->
-        <mxCell id="o3" value="Crime Detail Modal&lt;br/&gt;Type · Place · Severity · Time · Source&lt;br/&gt;+ Map Highlight of Route Crimes"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#db2777;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="710" y="2238" width="230" height="75" as="geometry" />
-        </mxCell>
-
-        <!-- 18: Navigate? decision -->
-        <mxCell id="d2" value="Navigate?"
-          style="rhombus;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#db2777;strokeWidth=2;fontSize=12;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="405" y="2385" width="190" height="65" as="geometry" />
-        </mxCell>
-
-        <!-- Google Maps export (YES branch) -->
-        <mxCell id="o4" value="Export to Google Maps&lt;br/&gt;Origin + Destination + up to 8 Waypoints&lt;br/&gt;Preserves Route Geometry"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#db2777;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="710" y="2373" width="230" height="75" as="geometry" />
-        </mxCell>
-
-        <!-- ============================================================ -->
-        <!-- ANALYTICS SIDE NOTE                                          -->
-        <!-- ============================================================ -->
-
-        <mxCell id="analytics" value="Analytics Dashboard&lt;br/&gt;(Optional Tab)&lt;br/&gt;Total Crimes · Day/Night Split&lt;br/&gt;Type Distribution · Hotspot List"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede9fe;strokeColor=#7c3aed;strokeWidth=1.5;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="80" y="2110" width="210" height="75" as="geometry" />
-        </mxCell>
-
-        <!-- ============================================================ -->
-        <!-- END                                                          -->
-        <!-- ============================================================ -->
-
-        <mxCell id="end" value="End"
-          style="ellipse;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#374151;strokeWidth=2;fontSize=13;fontStyle=1;"
-          vertex="1" parent="1">
-          <mxGeometry x="450" y="2515" width="100" height="44" as="geometry" />
-        </mxCell>
-
-        <!-- ============================================================ -->
-        <!-- ARROWS — MAIN FLOW                                           -->
-        <!-- ============================================================ -->
-
-        <!-- Start → in1 -->
-        <mxCell id="a0" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="start" target="in1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- in1 → in2 -->
-        <mxCell id="a1" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="in1" target="in2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- in2 → in3 -->
-        <mxCell id="a2" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="in2" target="in3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- in3 → in4 -->
-        <mxCell id="a3" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="in3" target="in4">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- in4 → in5 -->
-        <mxCell id="a4" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="in4" target="in5">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- in5 → in6 -->
-        <mxCell id="a5" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="in5" target="in6">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- in6 → fork bar -->
-        <mxCell id="a6" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.37;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="in6" target="fork">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- fork → OSRM -->
-        <mxCell id="a7" style="endArrow=block;endFill=1;strokeColor=#d97706;strokeWidth=1.5;exitX=0.11;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="fork" target="p_osrm">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- fork → GraphHopper -->
-        <mxCell id="a8" style="endArrow=block;endFill=1;strokeColor=#d97706;strokeWidth=1.5;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="fork" target="p_gh">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- fork → ORS -->
-        <mxCell id="a9" style="endArrow=block;endFill=1;strokeColor=#d97706;strokeWidth=1.5;exitX=0.88;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="fork" target="p_ors">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- OSRM → join bar -->
-        <mxCell id="a10" style="endArrow=none;strokeColor=#d97706;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.11;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p_osrm" target="join">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- GraphHopper → join bar -->
-        <mxCell id="a11" style="endArrow=none;strokeColor=#d97706;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p_gh" target="join">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- ORS → join bar -->
-        <mxCell id="a12" style="endArrow=none;strokeColor=#d97706;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.88;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p_ors" target="join">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- join bar → Merge -->
-        <mxCell id="a13" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;exitX=0.37;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="join" target="p1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Merge → Sort -->
-        <mxCell id="a14" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="p1" target="p2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Sort → Deduplicate -->
-        <mxCell id="a15" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="p2" target="p3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Deduplicate → Crime Query -->
-        <mxCell id="a16" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="p3" target="p4">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Crime Query → Time Filter -->
-        <mxCell id="a17" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="p4" target="p5">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Time Filter → 6-Factor Risk -->
-        <mxCell id="a18" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="p5" target="p6">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- 6-Factor Risk → Blend+Score -->
-        <mxCell id="a19" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="p6" target="p7">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Blend+Score → Re-index+Rank -->
-        <mxCell id="a20" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="p7" target="p8">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Re-index+Rank → Map Display -->
-        <mxCell id="a21" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="p8" target="o1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Map Display → Route Cards -->
-        <mxCell id="a22" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="o1" target="o2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Route Cards → View Crimes? -->
-        <mxCell id="a23" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="o2" target="d1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- View Crimes? → Crime Modal (YES, right) -->
-        <mxCell id="a24" value="Yes" style="endArrow=block;endFill=1;strokeColor=#db2777;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#db2777;" edge="1" parent="1" source="d1" target="o3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- View Crimes? → Navigate? (NO, down) -->
-        <mxCell id="a25" value="No" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;fontSize=11;fontStyle=1;" edge="1" parent="1" source="d1" target="d2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Crime Modal → Navigate? (rejoin) -->
-        <mxCell id="a26" style="endArrow=block;endFill=1;strokeColor=#db2777;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="o3" target="d2">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="825" y="2418" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-
-        <!-- Navigate? → Google Maps (YES, right) -->
-        <mxCell id="a27" value="Yes" style="endArrow=block;endFill=1;strokeColor=#db2777;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#db2777;" edge="1" parent="1" source="d2" target="o4">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Navigate? → End (NO, down) -->
-        <mxCell id="a28" value="No" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;fontSize=11;fontStyle=1;" edge="1" parent="1" source="d2" target="end">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Google Maps → End -->
-        <mxCell id="a29" style="endArrow=block;endFill=1;strokeColor=#db2777;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="o4" target="end">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="825" y="2537" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-
-        <!-- Route Cards → Analytics (optional, dashed) -->
-        <mxCell id="a30" value="Optional" style="endArrow=open;endFill=0;strokeColor=#7c3aed;strokeWidth=1.5;dashed=1;fontSize=10;fontStyle=2;fontColor=#7c3aed;" edge="1" parent="1" source="o2" target="analytics">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- ============================================================ -->
-        <!-- TITLE                                                        -->
-        <!-- ============================================================ -->
-
-        <mxCell id="title" value="Figure 1 — Route Shield: Crime-Aware Navigation Workflow"
-          style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;fontColor=#1a1a2e;"
-          vertex="1" parent="1">
-          <mxGeometry x="60" y="2580" width="980" height="35" as="geometry" />
-        </mxCell>
-
+        <mxCell id="2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;opacity=25;fontSize=1;pointerEvents=0;" vertex="1" parent="1"><mxGeometry x="30" y="60" width="1040" height="680" as="geometry" /></mxCell>
+        <mxCell id="3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;opacity=25;fontSize=1;pointerEvents=0;" vertex="1" parent="1"><mxGeometry x="30" y="755" width="1040" height="1165" as="geometry" /></mxCell>
+        <mxCell id="4" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;opacity=25;fontSize=1;pointerEvents=0;" vertex="1" parent="1"><mxGeometry x="30" y="1935" width="1040" height="595" as="geometry" /></mxCell>
+        <mxCell id="5" value="1  ·  INPUT" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;fontColor=#1d4ed8;" vertex="1" parent="1"><mxGeometry x="45" y="65" width="200" height="28" as="geometry" /></mxCell>
+        <mxCell id="6" value="2  ·  PROCESSING" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;fontColor=#d97706;" vertex="1" parent="1"><mxGeometry x="45" y="760" width="260" height="28" as="geometry" /></mxCell>
+        <mxCell id="7" value="3  ·  OUTPUT" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;fontColor=#16a34a;" vertex="1" parent="1"><mxGeometry x="45" y="1940" width="200" height="28" as="geometry" /></mxCell>
+        <mxCell id="8" value="Start" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#374151;strokeWidth=2;fontSize=13;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="475" y="8" width="100" height="44" as="geometry" /></mxCell>
+        <mxCell id="9" value="User Enters Origin &amp; Destination" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="100" width="244" height="60" as="geometry" /></mxCell>
+        <mxCell id="10" value="Live Nominatim Autocomplete Suggestions&lt;br/&gt;(Filtered to Dhaka, Bangladesh)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;fontSize=11;" vertex="1" parent="1"><mxGeometry x="378" y="210" width="244" height="60" as="geometry" /></mxCell>
+        <mxCell id="11" value="Origin &amp; Destination Geocoded to Lat / Long" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cffafe;strokeColor=#0891b2;strokeWidth=1.5;fontSize=11;" vertex="1" parent="1"><mxGeometry x="378" y="320" width="244" height="55" as="geometry" /></mxCell>
+        <mxCell id="12" value="Select Travel Time — Day or Night" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="425" width="244" height="60" as="geometry" /></mxCell>
+        <mxCell id="13" value="Configure Safety Preferences&lt;br/&gt;Risk Tolerance: Cautious / Balanced / Time-Focused&lt;br/&gt;Crime-Type Concern Weights  0.5 – 2.0" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="540" width="244" height="78" as="geometry" /></mxCell>
+        <mxCell id="14" value="▶  Click  Find Safe Routes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#ca8a04;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="390" y="680" width="220" height="48" as="geometry" /></mxCell>
+        <mxCell id="15" value="" style="fillColor=#374151;strokeColor=#374151;" vertex="1" parent="1"><mxGeometry x="95" y="798" width="840" height="10" as="geometry" /></mxCell>
+        <mxCell id="16" value="Parallel Route Fetch (all three called simultaneously; failures return empty list)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=2;fontColor=#6b7280;" vertex="1" parent="1"><mxGeometry x="95" y="808" width="840" height="18" as="geometry" /></mxCell>
+        <mxCell id="17" value="OSRM&lt;br/&gt;Open Source Routing Machine&lt;br/&gt;(OSM-based, no key required)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;" vertex="1" parent="1"><mxGeometry x="95" y="836" width="200" height="70" as="geometry" /></mxCell>
+        <mxCell id="18" value="GraphHopper&lt;br/&gt;Graph-based Engine&lt;br/&gt;500 free requests / day" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;" vertex="1" parent="1"><mxGeometry x="405" y="836" width="200" height="70" as="geometry" /></mxCell>
+        <mxCell id="19" value="OpenRouteService (ORS)&lt;br/&gt;Feature-rich Engine&lt;br/&gt;2 000 free requests / day" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;" vertex="1" parent="1"><mxGeometry x="730" y="836" width="200" height="70" as="geometry" /></mxCell>
+        <mxCell id="20" value="" style="fillColor=#374151;strokeColor=#374151;" vertex="1" parent="1"><mxGeometry x="95" y="926" width="840" height="10" as="geometry" /></mxCell>
+        <mxCell id="21" value="Merge All Routes into Single List" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="990" width="244" height="55" as="geometry" /></mxCell>
+        <mxCell id="22" value="Sort by Duration — Fastest First" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="1100" width="244" height="55" as="geometry" /></mxCell>
+        <mxCell id="23" value="Deduplicate Routes&lt;br/&gt;Drop Near-Clones: Dual-ratio ≤ 8%&lt;br/&gt;(AND on Duration AND Distance)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="1210" width="244" height="70" as="geometry" /></mxCell>
+        <mxCell id="24" value="Query MongoDB Crime Data ($near)&lt;br/&gt;500 m Radius per Route Segment&lt;br/&gt;2dsphere Index · Day / Night Filter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cffafe;strokeColor=#0891b2;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="1340" width="244" height="75" as="geometry" /></mxCell>
+        <mxCell id="25" value="Apply Day / Night Crime Time Filter&lt;br/&gt;Matching time t_f = 2.0x  ·  Other t_f = 0.5x" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="1475" width="244" height="65" as="geometry" /></mxCell>
+        <mxCell id="26" value="Compute 6-Factor Risk per Crime&lt;br/&gt;risk = d_f x s_f x t_f x w_type x w_concern x w_tol x 10&lt;br/&gt;(Haversine + Point-to-Segment Projection)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="1600" width="244" height="80" as="geometry" /></mxCell>
+        <mxCell id="27" value="Blend 70% Severity + 30% Log-Density&lt;br/&gt;safetyScore = (100 - combinedRisk x 85 - 3 x N_highRisk) / 10&lt;br/&gt;Low 7.5+  ·  Medium 5.0+  ·  High below 5.0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="1745" width="244" height="80" as="geometry" /></mxCell>
+        <mxCell id="28" value="Re-index &amp; Rank Routes by Safety Score&lt;br/&gt;Tag Safest Route as Recommended" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="1885" width="244" height="60" as="geometry" /></mxCell>
+        <mxCell id="29" value="Display Routes on Map (Leaflet.js)&lt;br/&gt;Colour-coded Polylines · Crime Heatmap&lt;br/&gt;High-risk Segment Highlights · Legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="1975" width="244" height="75" as="geometry" /></mxCell>
+        <mxCell id="30" value="Show Route Comparison Cards&lt;br/&gt;Safety Score Badge · Risk Label · Distance&lt;br/&gt;Duration · Nearby Crime Count" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="378" y="2110" width="244" height="75" as="geometry" /></mxCell>
+        <mxCell id="31" value="View Crimes?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#db2777;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="405" y="2250" width="190" height="65" as="geometry" /></mxCell>
+        <mxCell id="32" value="Crime Detail Modal&lt;br/&gt;Type · Place · Severity · Time · Source&lt;br/&gt;+ Map Highlight of Route Crimes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#db2777;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="710" y="2238" width="230" height="75" as="geometry" /></mxCell>
+        <mxCell id="33" value="Navigate?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#db2777;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="405" y="2385" width="190" height="65" as="geometry" /></mxCell>
+        <mxCell id="34" value="Export to Google Maps&lt;br/&gt;Origin + Destination + up to 8 Waypoints&lt;br/&gt;Preserves Route Geometry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#db2777;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="710" y="2373" width="230" height="75" as="geometry" /></mxCell>
+        <mxCell id="35" value="Analytics Dashboard&lt;br/&gt;(Optional Tab)&lt;br/&gt;Total Crimes · Day/Night Split&lt;br/&gt;Type Distribution · Hotspot List" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede9fe;strokeColor=#7c3aed;strokeWidth=1.5;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="80" y="2110" width="210" height="75" as="geometry" /></mxCell>
+        <mxCell id="36" value="End" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#374151;strokeWidth=2;fontSize=13;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="450" y="2515" width="100" height="44" as="geometry" /></mxCell>
+        <mxCell id="37" value="Figure 1 — Route Shield: Crime-Aware Navigation Workflow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;fontColor=#1a1a2e;" vertex="1" parent="1"><mxGeometry x="60" y="2580" width="980" height="35" as="geometry" /></mxCell>
+        <mxCell id="38" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="8" target="9"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="39" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="9" target="10"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="40" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="10" target="11"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="41" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="11" target="12"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="42" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="12" target="13"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="43" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="13" target="14"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="44" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.37;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="14" target="15"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="45" style="endArrow=block;endFill=1;strokeColor=#d97706;strokeWidth=1.5;exitX=0.11;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="15" target="17"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="46" style="endArrow=block;endFill=1;strokeColor=#d97706;strokeWidth=1.5;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="15" target="18"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="47" style="endArrow=block;endFill=1;strokeColor=#d97706;strokeWidth=1.5;exitX=0.88;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="15" target="19"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="48" style="endArrow=none;strokeColor=#d97706;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.11;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="17" target="20"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="49" style="endArrow=none;strokeColor=#d97706;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="18" target="20"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="50" style="endArrow=none;strokeColor=#d97706;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.88;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="19" target="20"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="51" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;exitX=0.37;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="20" target="21"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="52" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="21" target="22"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="53" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="22" target="23"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="54" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="23" target="24"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="55" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="24" target="25"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="56" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="25" target="26"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="57" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="26" target="27"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="58" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="27" target="28"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="59" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="28" target="29"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="60" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="29" target="30"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="61" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;" edge="1" parent="1" source="30" target="31"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="62" value="Yes" style="endArrow=block;endFill=1;strokeColor=#db2777;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#db2777;" edge="1" parent="1" source="31" target="32"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="63" value="No" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;fontSize=11;fontStyle=1;" edge="1" parent="1" source="31" target="33"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="64" style="endArrow=block;endFill=1;strokeColor=#db2777;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="32" target="33"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="825" y="2418" /></Array></mxGeometry></mxCell>
+        <mxCell id="65" value="Yes" style="endArrow=block;endFill=1;strokeColor=#db2777;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#db2777;" edge="1" parent="1" source="33" target="34"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="66" value="No" style="endArrow=block;endFill=1;strokeColor=#374151;strokeWidth=1.5;fontSize=11;fontStyle=1;" edge="1" parent="1" source="33" target="36"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="67" style="endArrow=block;endFill=1;strokeColor=#db2777;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="34" target="36"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="825" y="2537" /></Array></mxGeometry></mxCell>
+        <mxCell id="68" value="Optional" style="endArrow=open;endFill=0;strokeColor=#7c3aed;strokeWidth=1.5;dashed=1;fontSize=10;fontStyle=2;fontColor=#7c3aed;" edge="1" parent="1" source="30" target="35"><mxGeometry relative="1" as="geometry" /></mxCell>
       </root>
     </mxGraphModel>
+  </diagram>
+</mxfile>
