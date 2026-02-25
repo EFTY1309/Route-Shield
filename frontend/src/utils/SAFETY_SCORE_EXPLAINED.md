@@ -217,3 +217,16 @@ Label    = Medium Risk 🟡
 ---
 
 **One sentence summary:** The system loops through all 150 crimes, throws away the 138 that are too far away, calculates a danger number for each of the remaining 12 using your personal travel settings, adds them all up, and converts that total into a score from 0–10.
+
+
+Algorithm / Technique	Where in Your Code	Famous Field
+Haversine Formula	calculateDistance()	Navigation / GIS
+Point-to-Segment Projection	distanceToLineSegment()	Computational Geometry
+Spatial Buffer Analysis	500m threshold filter	GIS
+Weighted Product Model (WPM)	Risk = A × B × C × D...	MCDA / Decision Theory
+Log Normalization	log(1 + crimes) / 4	Information Retrieval
+Weighted Sum Model	70% quality + 30% quantity	MCDA / Credit Scoring
+Penalty-Based Scoring	Start 100, subtract risk	Credit Scoring
+Kernel Density Estimation	Crime hotspot detection	Criminology / Statistics
+DBSCAN (simplified)	3+ crimes = hotspot flag	Machine Learning
+Context-Aware Ranking	Day/Night + preferences	Recommender Systems
