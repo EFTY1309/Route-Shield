@@ -35,8 +35,12 @@ function AppContent() {
   // Fetch crime data immediately on app load so heatmap is populated right away
   useEffect(() => {
     fetchCrimeData()
-      .then((data) => { if (data && data.length > 0) setCrimes(data); })
-      .catch(() => { /* keep dummyCrimes as fallback */ });
+      .then((data) => {
+        if (data && data.length > 0) setCrimes(data);
+      })
+      .catch(() => {
+        /* keep dummyCrimes as fallback */
+      });
   }, []);
 
   // Listen for clear-highlights event dispatched from MapView legend
