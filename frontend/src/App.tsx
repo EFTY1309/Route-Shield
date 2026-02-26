@@ -10,11 +10,14 @@ import type { SafetyPreferences } from "./types/preferences.types";
 import { fetchRouteAlternatives } from "./services/routeService";
 
 import type { CrimeData } from "./data/dummyCrimes";
+import { dummyCrimes } from "./data/dummyCrimes";
+import { fetchCrimeData } from "./services/routeService";
 
 function AppContent() {
   const { theme, toggleTheme } = useTheme();
   const [selectedRoutes, setSelectedRoutes] = useState<number[]>([]);
   const [showHeatmap, setShowHeatmap] = useState(true);
+  const [crimes, setCrimes] = useState<CrimeData[]>(dummyCrimes);
   const [showPoliceStations, setShowPoliceStations] = useState(false);
   const [activeTab, setActiveTab] = useState<"dashboard" | "routes">("routes");
   const [routes, setRoutes] = useState<RouteData[]>([]);
@@ -28,6 +31,17 @@ function AppContent() {
   const [highlightedCrimes, setHighlightedCrimes] = useState<
     CrimeData[] | null
   >(null);
+
+  // Fetch crime data immediately on app load so heatmap is populated right away
+  useEffect(() => {
+    fetchCrimeData()
+      .then((data) => {
+        if (data && data.length > 0) setCrimes(data);
+      })
+      .catch(() => {
+        /* keep dummyCrimes as fallback */
+      });
+  }, []);
 
   // Listen for clear-highlights event dispatched from MapView legend
   useEffect(() => {
@@ -213,6 +227,7 @@ function AppContent() {
               destination={searchedDestination}
               travelTime={currentTravelTime}
               highlightedCrimes={highlightedCrimes}
+              crimes={crimes}
             />
           </div>
 

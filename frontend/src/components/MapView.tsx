@@ -15,7 +15,6 @@ import type { RouteData } from "../types/route.types";
 import { dummyCrimes } from "../data/dummyCrimes";
 import type { CrimeData } from "../data/dummyCrimes";
 import { useTheme } from "../context/ThemeContext";
-import { fetchCrimeData } from "../services/routeService";
 
 // Fix Leaflet default icon issue with Vite
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -39,6 +38,7 @@ interface MapViewProps {
   destination?: string;
   travelTime?: "Day" | "Night";
   highlightedCrimes?: CrimeData[] | null;
+  crimes?: CrimeData[];
 }
 
 // Component to auto-fit map bounds when routes change
@@ -104,27 +104,12 @@ function MapView({
   destination,
   travelTime = "Day",
   highlightedCrimes,
+  crimes: crimesProp,
 }: MapViewProps) {
   const { theme } = useTheme();
   const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
-  const [crimes, setCrimes] = useState<CrimeData[]>(dummyCrimes);
-
-  // Fetch real crime data from API
-  useEffect(() => {
-    const loadCrimeData = async () => {
-      try {
-        const data = await fetchCrimeData();
-        if (data && data.length > 0) {
-          setCrimes(data);
-        }
-      } catch (error) {
-        console.error("Failed to load crime data for map:", error);
-        // Keep using dummyCrimes as fallback
-      }
-    };
-
-    loadCrimeData();
-  }, []);
+  // Use crimes passed from App (loaded on app mount). Fall back to dummyCrimes.
+  const crimes = crimesProp && crimesProp.length > 0 ? crimesProp : dummyCrimes;
 
   const center: LatLngExpression = [23.7808, 90.4142]; // Center on Dhaka (Gulshan area)
 
@@ -182,10 +167,10 @@ function MapView({
     shadowSize: [33, 33],
   });
 
-  // Filter crimes by current travel time for the heatmap
-  const filteredCrimes = crimes.filter(
-    (crime) => crime.time_of_day === travelTime,
-  );
+  // Show ALL crimes on the heatmap regardless of travel time.
+  // When routes exist, additionally highlight crimes that match the user's travel time
+  // by giving mismatched-time crimes lower opacity (handled in pathOptions below).
+  const filteredCrimes = crimes;
 
   // Derive police station locations from crime data
   const policeStations = derivePoliceStations(crimes);
@@ -207,33 +192,36 @@ function MapView({
           }
         />
 
-        {/* Crime Heatmap Overlay - filtered by travel time */}
+        {/* Crime Heatmap Overlay - shows ALL crimes; crimes matching travel time are brighter */}
         {showHeatmap &&
-          filteredCrimes.map((crime: CrimeData) => (
-            <CircleMarker
-              key={crime.id}
-              center={[crime.lat, crime.lng]}
-              radius={getCrimeRadius(crime.severity_score)}
-              pathOptions={{
-                fillColor: getCrimeColor(crime.severity_score),
-                color: getCrimeColor(crime.severity_score),
-                weight: 1,
-                opacity: 0.6,
-                fillOpacity: 0.4,
-              }}
-            >
-              <Popup>
-                <div className="text-sm">
-                  <h3 className="font-bold text-gray-900">
-                    {crime.crime_type}
-                  </h3>
-                  <p className="text-gray-700">{crime.location_name}</p>
-                  <p className="text-gray-600">Time: {crime.time_of_day}</p>
-                  <p className="text-gray-500 text-xs">{crime.date}</p>
-                </div>
-              </Popup>
-            </CircleMarker>
-          ))}
+          filteredCrimes.map((crime: CrimeData) => {
+            const matchesTime = crime.time_of_day === travelTime;
+            return (
+              <CircleMarker
+                key={crime.id}
+                center={[crime.lat, crime.lng]}
+                radius={getCrimeRadius(crime.severity_score)}
+                pathOptions={{
+                  fillColor: getCrimeColor(crime.severity_score),
+                  color: getCrimeColor(crime.severity_score),
+                  weight: 1,
+                  opacity: matchesTime ? 0.8 : 0.3,
+                  fillOpacity: matchesTime ? 0.55 : 0.15,
+                }}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <h3 className="font-bold text-gray-900">
+                      {crime.crime_type}
+                    </h3>
+                    <p className="text-gray-700">{crime.location_name}</p>
+                    <p className="text-gray-600">Time: {crime.time_of_day}</p>
+                    <p className="text-gray-500 text-xs">{crime.date}</p>
+                  </div>
+                </Popup>
+              </CircleMarker>
+            );
+          })}
 
         {/* Police Station Markers */}
         {showPoliceStations &&
@@ -421,7 +409,10 @@ function MapView({
             <>
               <hr className="my-1 border-gray-300 dark:border-gray-600" />
               <p className="text-gray-500 dark:text-gray-400 italic">
-                {travelTime === "Day" ? "☀️ Day crimes" : "🌙 Night crimes"}
+                Bright = {travelTime === "Day" ? "☀️ Day" : "🌙 Night"} crimes
+              </p>
+              <p className="text-gray-400 dark:text-gray-500 italic text-xs">
+                Faded = opposite time
               </p>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-600 opacity-40"></div>
